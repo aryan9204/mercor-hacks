@@ -1,0 +1,49 @@
+{
+  "ds_index": 12834,
+  "dataset": "jline/ViTAR-16K (train)",
+  "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "question": "Which half of the image (left or right) contains the breast mass? A) Left half B) Right half C) No mass is present",
+  "gt": "A",
+  "evidence_box_norm": [
+    0.0,
+    0.36,
+    0.31,
+    0.64
+  ],
+  "evidence_box_px": [
+    0,
+    451,
+    248,
+    801
+  ],
+  "random_box_px": [
+    424,
+    236,
+    672,
+    586
+  ],
+  "fill_rgb": [
+    124,
+    116,
+    104
+  ],
+  "results": {
+    "full": {
+      "pred": "A",
+      "conf": 0.941
+    },
+    "evidence_masked": {
+      "pred": "B",
+      "conf": 0.711
+    },
+    "random_masked": {
+      "pred": "A",
+      "conf": 0.9
+    },
+    "evidence_masked_with_abstain_option": {
+      "pred": "B",
+      "abstain_letter": "D"
+    }
+  },
+  "source": "results/vitar_good_examples.csv"
+}
