@@ -167,5 +167,7 @@ def run_v2():
         V2STATE["elapsed_s"] = round(time.time() - V2STATE["started"])
 
 
-threading.Thread(target=run_v2, daemon=True).start()
-print("started checker v2 thread")
+# Set RUN_V2 = False before this file to load only the helpers (vitar_score_demo.py does this).
+if globals().get("RUN_V2", True):
+    threading.Thread(target=run_v2, daemon=True).start()
+    print("started checker v2 thread")
