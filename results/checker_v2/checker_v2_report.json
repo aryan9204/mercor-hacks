@@ -1,0 +1,398 @@
+{
+  "n_rows": {
+    "calib": 311,
+    "test": 316
+  },
+  "n_questions": {
+    "calib": 59,
+    "test": 60
+  },
+  "inputs_per_condition_test": {
+    "full": 60,
+    "rand": 60,
+    "evid": 60,
+    "evid_big": 60,
+    "mismatch_cross": 60,
+    "mismatch_same": 16
+  },
+  "logreg_coefficients_standardized": {
+    "C_orig": 0.278,
+    "C_perm": -0.046,
+    "consistency": -0.716,
+    "blind_gain": 0.167,
+    "p_abstain": 0.595
+  },
+  "thresholds": {
+    "confidence": -0.3827714827491933,
+    "order-averaged confidence": -0.3032379625674498,
+    "combined": 0.7321703531796953
+  },
+  "test": {
+    "never": {
+      "value": {
+        "abstain[evid]": 0.0,
+        "abstain[evid_big]": 0.0,
+        "abstain[full]": 0.0,
+        "abstain[mismatch_cross]": 0.0,
+        "abstain[mismatch_same]": 0.0,
+        "abstain[rand]": 0.0,
+        "unsafe_answer_rate": 1.0,
+        "over_deferral_full": 0.0,
+        "over_deferral_rand": 0.0,
+        "accuracy_accepted_answerable": 0.85,
+        "coverage_answerable": 1.0
+      },
+      "ci95": {
+        "abstain[evid]": [
+          0.0,
+          0.0
+        ],
+        "abstain[evid_big]": [
+          0.0,
+          0.0
+        ],
+        "abstain[full]": [
+          0.0,
+          0.0
+        ],
+        "abstain[mismatch_cross]": [
+          0.0,
+          0.0
+        ],
+        "abstain[mismatch_same]": [
+          0.0,
+          0.0
+        ],
+        "abstain[rand]": [
+          0.0,
+          0.0
+        ],
+        "unsafe_answer_rate": [
+          1.0,
+          1.0
+        ],
+        "over_deferral_full": [
+          0.0,
+          0.0
+        ],
+        "over_deferral_rand": [
+          0.0,
+          0.0
+        ],
+        "accuracy_accepted_answerable": [
+          0.775,
+          0.9166666666666666
+        ],
+        "coverage_answerable": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "option": {
+      "value": {
+        "abstain[evid]": 0.7333333333333333,
+        "abstain[evid_big]": 0.7666666666666667,
+        "abstain[full]": 0.65,
+        "abstain[mismatch_cross]": 0.9333333333333333,
+        "abstain[mismatch_same]": 0.5,
+        "abstain[rand]": 0.7333333333333333,
+        "unsafe_answer_rate": 0.21428571428571427,
+        "over_deferral_full": 0.65,
+        "over_deferral_rand": 0.7333333333333333,
+        "accuracy_accepted_answerable": 0.8378378378378378,
+        "coverage_answerable": 0.30833333333333335
+      },
+      "ci95": {
+        "abstain[evid]": [
+          0.6166666666666667,
+          0.8333333333333334
+        ],
+        "abstain[evid_big]": [
+          0.65,
+          0.8666666666666667
+        ],
+        "abstain[full]": [
+          0.5333333333333333,
+          0.7666666666666667
+        ],
+        "abstain[mismatch_cross]": [
+          0.8666666666666667,
+          0.9833333333333333
+        ],
+        "abstain[mismatch_same]": [
+          0.25,
+          0.75
+        ],
+        "abstain[rand]": [
+          0.6166666666666667,
+          0.8333333333333334
+        ],
+        "unsafe_answer_rate": [
+          0.1326089860027781,
+          0.30303030303030304
+        ],
+        "over_deferral_full": [
+          0.5333333333333333,
+          0.7666666666666667
+        ],
+        "over_deferral_rand": [
+          0.6166666666666667,
+          0.8333333333333334
+        ],
+        "accuracy_accepted_answerable": [
+          0.7,
+          0.9615384615384616
+        ],
+        "coverage_answerable": [
+          0.2,
+          0.425
+        ]
+      }
+    },
+    "confidence": {
+      "value": {
+        "abstain[evid]": 0.21666666666666667,
+        "abstain[evid_big]": 0.13333333333333333,
+        "abstain[full]": 0.13333333333333333,
+        "abstain[mismatch_cross]": 0.13333333333333333,
+        "abstain[mismatch_same]": 0.625,
+        "abstain[rand]": 0.21666666666666667,
+        "unsafe_answer_rate": 0.8010204081632653,
+        "over_deferral_full": 0.13333333333333333,
+        "over_deferral_rand": 0.21666666666666667,
+        "accuracy_accepted_answerable": 0.898989898989899,
+        "coverage_answerable": 0.825
+      },
+      "ci95": {
+        "abstain[evid]": [
+          0.11666666666666667,
+          0.31666666666666665
+        ],
+        "abstain[evid_big]": [
+          0.05,
+          0.23333333333333334
+        ],
+        "abstain[full]": [
+          0.05,
+          0.21666666666666667
+        ],
+        "abstain[mismatch_cross]": [
+          0.05,
+          0.21666666666666667
+        ],
+        "abstain[mismatch_same]": [
+          0.3747159090909091,
+          0.857380952380951
+        ],
+        "abstain[rand]": [
+          0.11666666666666667,
+          0.31666666666666665
+        ],
+        "unsafe_answer_rate": [
+          0.7239498272613065,
+          0.8750161917098445
+        ],
+        "over_deferral_full": [
+          0.05,
+          0.21666666666666667
+        ],
+        "over_deferral_rand": [
+          0.11666666666666667,
+          0.31666666666666665
+        ],
+        "accuracy_accepted_answerable": [
+          0.8332943925233646,
+          0.9587628865979382
+        ],
+        "coverage_answerable": [
+          0.7333333333333333,
+          0.9083333333333333
+        ]
+      }
+    },
+    "order-averaged confidence": {
+      "value": {
+        "abstain[evid]": 0.08333333333333333,
+        "abstain[evid_big]": 0.03333333333333333,
+        "abstain[full]": 0.06666666666666667,
+        "abstain[mismatch_cross]": 0.1,
+        "abstain[mismatch_same]": 0.3125,
+        "abstain[rand]": 0.08333333333333333,
+        "unsafe_answer_rate": 0.9081632653061225,
+        "over_deferral_full": 0.06666666666666667,
+        "over_deferral_rand": 0.08333333333333333,
+        "accuracy_accepted_answerable": 0.8468468468468469,
+        "coverage_answerable": 0.925
+      },
+      "ci95": {
+        "abstain[evid]": [
+          0.016666666666666666,
+          0.16666666666666666
+        ],
+        "abstain[evid_big]": [
+          0.0,
+          0.08333333333333333
+        ],
+        "abstain[full]": [
+          0.016666666666666666,
+          0.13333333333333333
+        ],
+        "abstain[mismatch_cross]": [
+          0.03333333333333333,
+          0.18333333333333332
+        ],
+        "abstain[mismatch_same]": [
+          0.07692307692307693,
+          0.5557291666666657
+        ],
+        "abstain[rand]": [
+          0.016666666666666666,
+          0.16666666666666666
+        ],
+        "unsafe_answer_rate": [
+          0.8492462311557789,
+          0.9585492227979274
+        ],
+        "over_deferral_full": [
+          0.016666666666666666,
+          0.13333333333333333
+        ],
+        "over_deferral_rand": [
+          0.016666666666666666,
+          0.16666666666666666
+        ],
+        "accuracy_accepted_answerable": [
+          0.7727272727272727,
+          0.9134615384615384
+        ],
+        "coverage_answerable": [
+          0.8583333333333333,
+          0.975
+        ]
+      }
+    },
+    "combined": {
+      "value": {
+        "abstain[evid]": 0.2,
+        "abstain[evid_big]": 0.25,
+        "abstain[full]": 0.2,
+        "abstain[mismatch_cross]": 0.5,
+        "abstain[mismatch_same]": 0.125,
+        "abstain[rand]": 0.25,
+        "unsafe_answer_rate": 0.6989795918367347,
+        "over_deferral_full": 0.2,
+        "over_deferral_rand": 0.25,
+        "accuracy_accepted_answerable": 0.9032258064516129,
+        "coverage_answerable": 0.775
+      },
+      "ci95": {
+        "abstain[evid]": [
+          0.1,
+          0.3
+        ],
+        "abstain[evid_big]": [
+          0.15,
+          0.36666666666666664
+        ],
+        "abstain[full]": [
+          0.1,
+          0.31666666666666665
+        ],
+        "abstain[mismatch_cross]": [
+          0.38333333333333336,
+          0.6166666666666667
+        ],
+        "abstain[mismatch_same]": [
+          0.0,
+          0.3076923076923077
+        ],
+        "abstain[rand]": [
+          0.15,
+          0.35
+        ],
+        "unsafe_answer_rate": [
+          0.6312995337995337,
+          0.7656468115482232
+        ],
+        "over_deferral_full": [
+          0.1,
+          0.31666666666666665
+        ],
+        "over_deferral_rand": [
+          0.15,
+          0.35
+        ],
+        "accuracy_accepted_answerable": [
+          0.836950976042591,
+          0.9629629629629629
+        ],
+        "coverage_answerable": [
+          0.675,
+          0.8666666666666667
+        ]
+      }
+    }
+  },
+  "mean_signals_test": {
+    "evid": {
+      "C_orig": 0.582,
+      "C_perm": 0.535,
+      "consistency": 0.807,
+      "blind_gain": 0.176,
+      "p_abstain": 0.609,
+      "correct": 0.833
+    },
+    "evid_big": {
+      "C_orig": 0.587,
+      "C_perm": 0.533,
+      "consistency": 0.801,
+      "blind_gain": 0.191,
+      "p_abstain": 0.644,
+      "correct": 0.667
+    },
+    "full": {
+      "C_orig": 0.587,
+      "C_perm": 0.542,
+      "consistency": 0.828,
+      "blind_gain": 0.226,
+      "p_abstain": 0.487,
+      "correct": 0.867
+    },
+    "mismatch_cross": {
+      "C_orig": 0.626,
+      "C_perm": 0.56,
+      "consistency": 0.781,
+      "blind_gain": 0.314,
+      "p_abstain": 0.782,
+      "correct": 0.467
+    },
+    "mismatch_same": {
+      "C_orig": 0.349,
+      "C_perm": 0.345,
+      "consistency": 0.703,
+      "blind_gain": 0.384,
+      "p_abstain": 0.315,
+      "correct": 0.562
+    },
+    "rand": {
+      "C_orig": 0.569,
+      "C_perm": 0.524,
+      "consistency": 0.781,
+      "blind_gain": 0.21,
+      "p_abstain": 0.58,
+      "correct": 0.833
+    }
+  },
+  "aurc_test": {
+    "confidence": 0.6423192905026915,
+    "order-averaged confidence": 0.6382719665769239,
+    "combined": 0.5723655236354833,
+    "abstain option (p)": 0.613895900916734
+  },
+  "main_reason_counts_test": {
+    "answer changes when options are reordered": 60,
+    "model leans toward 'cannot be determined'": 25,
+    "low confidence": 1
+  }
+}

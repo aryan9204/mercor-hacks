@@ -1,0 +1,6 @@
+,abstain[evid],abstain[evid_big],abstain[full],abstain[mismatch_cross],abstain[mismatch_same],abstain[rand],unsafe_answer_rate,over_deferral_full,over_deferral_rand,accuracy_accepted_answerable,coverage_answerable
+never,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.85,1.0
+option,0.733,0.767,0.65,0.933,0.5,0.733,0.214,0.65,0.733,0.838,0.308
+confidence,0.217,0.133,0.133,0.133,0.625,0.217,0.801,0.133,0.217,0.899,0.825
+order-averaged confidence,0.083,0.033,0.067,0.1,0.312,0.083,0.908,0.067,0.083,0.847,0.925
+combined,0.2,0.25,0.2,0.5,0.125,0.25,0.699,0.2,0.25,0.903,0.775
