@@ -1,0 +1,5 @@
+,abstain_on_evidence_removed,false_abstain_full,false_abstain_random_masked,answered_wrong_on_evidence_removed
+never_abstain (model today),0.0,0.0,0.0,0.183
+abstain_option,0.733,0.65,0.733,0.017
+confidence_only (tau_C=0.383),0.217,0.133,0.217,0.1
+"confidence+grounding (tau_C=0.376, tau_G=-0.139)",0.233,0.2,0.217,0.1

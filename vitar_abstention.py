@@ -344,5 +344,7 @@ def run():
         STATE["elapsed_s"] = round(time.time() - STATE["started"])
 
 
-threading.Thread(target=run, daemon=True).start()
-print("started screening thread")
+# Set RUN_SCREEN = False before this file to load only the helpers (vitar_checker.py does this).
+if globals().get("RUN_SCREEN", True):
+    threading.Thread(target=run, daemon=True).start()
+    print("started screening thread")
