@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { ScanSearch, LayoutPanelTop, ChartColumn, LayoutGrid, Search, Sparkles } from "lucide-react";
+import { ScanSearch, LayoutPanelTop, ChartColumn, LayoutGrid, Search, Sparkles, Workflow } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import Overview from "@/views/Overview";
 import CaseView from "@/views/CaseView";
 import Scoreboard from "@/views/Scoreboard";
 import Gallery from "@/views/Gallery";
+import Architecture from "@/views/Architecture";
 import CaseFinder from "@/views/CaseFinder";
 
 const TABS = [
@@ -15,6 +16,7 @@ const TABS = [
   { id: "case", label: "Case", icon: LayoutPanelTop },
   { id: "score", label: "Results", icon: ChartColumn },
   { id: "gallery", label: "Gallery", icon: LayoutGrid },
+  { id: "architecture", label: "Architecture", icon: Workflow },
 ];
 const DEFAULT_CASE = 0; // first demo case (caught cases are listed first)
 
@@ -103,6 +105,7 @@ export default function App() {
           {tab === "case" && <CaseView idx={idx} gate={gate} setIdx={(i) => go("case", i)} />}
           {tab === "score" && <Scoreboard gate={gate} openCase={openCase} />}
           {tab === "gallery" && <Gallery gate={gate} openCase={openCase} />}
+          {tab === "architecture" && <Architecture openCase={openCase} go={go} />}
         </div>
       </main>
       <CaseFinder open={finderOpen} onOpenChange={setFinderOpen} onPick={(i) => { setFinderOpen(false); openCase(i); }} />

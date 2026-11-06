@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CaseImage, Eyebrow } from "@/components/common";
 import { CASES, CHECKER_V2, VIEW_NAME, VIEW_ORDER, VIEW_SUB, CAUGHT_COUNT, MODEL, f2, pct } from "@/lib/imaced";
 import { cn } from "@/lib/utils";
+import BeforeAfterChart from "@/components/score/BeforeAfterChart";
 
 const num = "font-mono tnum";
 const R = CHECKER_V2.rules;
@@ -294,6 +295,7 @@ export default function Scoreboard({ openCase = () => {} }) {
         </p>
       </div>
       <Hero />
+      <BeforeAfterChart />
       <CaseMatrix openCase={openCase} />
       <HowItDecides />
       <RulesTable />

@@ -60,3 +60,4 @@ export const matchesText = (c, q) => {
 
 export const realImage = (c, view) => c.views[view]?.img || null;
 export const CAUGHT_COUNT = CASES.filter((c) => c.caught).length;
+export const PIPELINE = DATA.pipeline;          // screening funnels + v2 split and mean signals

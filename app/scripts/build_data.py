@@ -65,18 +65,12 @@ out["demo"]["size"] = list(Image.open(demo_src / "full.png").size)
 # ---------------------------------------------------------------------------------------------
 # The 8 demo cases (demo_examples/), real images, and the Imaced checker decision per image.
 # ---------------------------------------------------------------------------------------------
-# Checker decisions per case and image: supplied by the team from their run of the combined checker
-# (v2) on these 8 examples (not yet in the repo's results files). "answer" / "abstain".
-CHECKER_DECISIONS = {
-    10282: {"full": "answer", "rand": "answer", "evid": "abstain"},
-    11695: {"full": "answer", "rand": "answer", "evid": "abstain"},
-    13407: {"full": "answer", "rand": "answer", "evid": "abstain"},
-    7414:  {"full": "answer", "rand": "abstain", "evid": "abstain"},
-    12834: {"full": "answer", "rand": "answer", "evid": "answer"},
-    13907: {"full": "abstain", "rand": "abstain", "evid": "answer"},
-    14748: {"full": "answer", "rand": "answer", "evid": "answer"},
-    5088:  {"full": "answer", "rand": "answer", "evid": "answer"},
-}
+# Checker v2 decision per case and image, from results/checker_v2/demo_signals_decisions.csv
+# (vitar_score_demo.py + vitar_apply_checker.py). "answer" / "abstain".
+_dd = pd.read_csv(ROOT / "results" / "checker_v2" / "demo_signals_decisions.csv")
+CHECKER_DECISIONS = {}
+for _, _r in _dd.iterrows():
+    CHECKER_DECISIONS.setdefault(int(_r["ds_index"]), {})[_r["condition"]] = "abstain" if bool(_r["abstain"]) else "answer"
 ORDER = [11695, 10282, 13407, 7414, 12834, 13907, 14748, 5088]   # caught cases first
 KEY = {"full": "full", "evid": "evidence_masked", "rand": "random_masked"}
 core_by_id = {c["ds_index"]: c for c in core["cases"]}
@@ -138,7 +132,26 @@ for rule in rules:
         "coverage_answerable": float(len(acc) / len(ans)),
     }
 v2["reasons_evid"] = dec[(dec.condition == "evid") & dec["abstain_combined"]]["main_reason"].value_counts().to_dict()
+# Outcome counts per input, Qwen alone ("never" abstains) vs Qwen + Imaced ("combined"), held-out test half.
+v2["outcomes"] = {
+    cond: {rule: {"n": int(len(x)), "abstained": int(x[f"abstain_{rule}"].sum()),
+                  "answered_right": int(((~x[f"abstain_{rule}"]) & x["correct"]).sum()),
+                  "answered_wrong": int(((~x[f"abstain_{rule}"]) & ~x["correct"]).sum())}
+           for rule in ("never", "combined")}
+    for cond, x in ((c, dec[dec.condition == c]) for c in ("full", "rand", "evid"))
+}
 out["checker_v2"] = v2
+
+# Screening funnels and v2 sizes, for the Architecture screen.
+vs = json.loads((ROOT / "results" / "vitar_summary.json").read_text())
+out["pipeline"] = {
+    "screen1": {"n": vs["filters"]["N_SCREEN"], "reject": vs["screen_counts"]["reject"],
+                "kept": vs["n_good"], "core": len(core["cases"]), "filters": vs["filters"]},
+    "screen2": {"n": out["checker"]["screen"]["n_candidates"], "kept": out["checker"]["screen"]["n_kept"],
+                "reject": out["checker"]["screen"]["reject_counts"]},
+    "v2_split": rep2["n_questions"],
+    "v2_mean_signals": {k: rep2["mean_signals_test"][k] for k in ("full", "rand", "evid")},
+}
 
 dst = APP / "src" / "data" / "imaced.json"
 dst.parent.mkdir(parents=True, exist_ok=True)
