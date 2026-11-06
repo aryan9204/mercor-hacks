@@ -1,0 +1,4 @@
+input,n,C_only_abstains,combined_abstains,by_low_C,by_low_G_only,answered_wrong,wrong_and_caught
+full image (should answer),60,8,13,8,5,0,0
+evidence removed (should abstain),60,13,14,13,1,11,5
+random region masked (should answer),60,13,14,13,1,11,5
