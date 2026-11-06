@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Imaced — is the answer coming from the evidence?</title>
+<style>
+/* ===================================================================================================
+   Design tokens. One neutral ramp (reading-room grays), one data hue, three status colors.
+   Status colors are reserved for verdicts and always ship with an icon + label.
+   =================================================================================================== */
+:root {
+  --bg: #0b0b0a;          --bg-raised: #131312;  --surface: #1a1a19;  --surface-2: #222220;  --surface-3: #2b2b29;
+  --line: #2c2c2a;        --line-strong: #3a3a37;
+  --ink: #f0efec;         --ink-2: #c3c2b7;      --ink-3: #9a998f;    --ink-4: #6f6e67;   /* ink-4: decorative strokes only (3.4:1) */
+  --data: #3987e5;        --data-soft: rgba(57,135,229,.16);
+  --abstain: #8d8c84;
+  --good: #0ca30c;        --good-soft: rgba(12,163,12,.12);
+  --warn: #fab219;        --warn-soft: rgba(250,178,25,.10);
+  --crit: #e5484d;        --crit-soft: rgba(229,72,77,.12);
+  --evidence: #fab219;    /* dashed outline of the dataset evidence box */
+  --focus: #7fb2f0;
+
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;
+  --t-xs: 11px; --t-sm: 12px; --t-base: 14px; --t-md: 15px; --t-lg: 18px; --t-xl: 22px; --t-2xl: 30px;
+
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px;
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-full: 999px;
+  --shadow-1: 0 1px 0 rgba(255,255,255,.03) inset, 0 1px 2px rgba(0,0,0,.4);
+  --shadow-pop: 0 0 0 1px var(--line-strong), 0 16px 48px rgba(0,0,0,.55);
+  --ease: cubic-bezier(.2,.8,.2,1); --dur: 160ms;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: var(--t-base)/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.skip:focus { position: fixed; left: 12px; top: 12px; width: auto; height: auto; clip: auto; z-index: 60; padding: 8px 12px; background: var(--surface-2); border-radius: var(--r-sm); }
+svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i.sm { width: 14px; height: 14px; }
+svg.i.lg { width: 20px; height: 20px; }
+
+/* ---------- Primitives ---------------------------------------------------------------------------- */
+.btn { display: inline-flex; align-items: center; gap: var(--s-2); height: 32px; padding: 0 var(--s-3); border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-2); font-size: 13px; white-space: nowrap;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), transform 80ms var(--ease); }
+.btn:hover { background: var(--surface-2); color: var(--ink); border-color: #4a4a46; }
+.btn:active { transform: translateY(1px); }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.ghost:hover { background: var(--surface-2); }
+.btn.icon { width: 32px; padding: 0; justify-content: center; }
+.kbd { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; line-height: 16px; }
+
+.seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: var(--r-md); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.seg [role=tab], .seg [role=radio] { border: 0; background: transparent; color: var(--ink-3); height: 28px; padding: 0 var(--s-3); border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; white-space: nowrap; transition: background var(--dur) var(--ease), color var(--dur) var(--ease); }
+.seg [role=tab]:hover, .seg [role=radio]:hover { color: var(--ink); }
+.seg [aria-selected=true], .seg [aria-checked=true] { background: var(--surface-3); color: var(--ink); box-shadow: var(--shadow-1); }
+
+.badge { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: var(--r-full); font-size: var(--t-xs);
+  font-weight: 500; border: 1px solid var(--line-strong); color: var(--ink-2); background: var(--surface); white-space: nowrap; }
+.badge svg.i { width: 12px; height: 12px; stroke-width: 2.5; }
+.badge.good { color: #8ee08e; border-color: rgba(12,163,12,.45); background: var(--good-soft); }
+.badge.good svg { color: var(--good); }
+.badge.warn { color: #ffd77a; border-color: rgba(250,178,25,.45); background: var(--warn-soft); }
+.badge.warn svg { color: var(--warn); }
+.badge.crit { color: #ff9a9d; border-color: rgba(229,72,77,.5); background: var(--crit-soft); }
+.badge.crit svg { color: var(--crit); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.card-h { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-5) 0; flex-wrap: wrap; }
+.card-h h2 { margin: 0; font-size: var(--t-base); font-weight: 600; }
+.card-b { padding: var(--s-4) var(--s-5) var(--s-5); }
+.eyebrow { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+
+/* ---------- App shell ----------------------------------------------------------------------------- */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(11,11,10,.86); backdrop-filter: saturate(140%) blur(8px); border-bottom: 1px solid var(--line); }
+.topbar-in { max-width: 1480px; margin: 0 auto; padding: var(--s-3) var(--s-6); display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; margin-right: var(--s-2); text-decoration: none; color: var(--ink); }
+.brand-mark { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--evidence); }
+.brand b { font-size: var(--t-md); letter-spacing: .14em; }
+.brand span { color: var(--ink-3); font-size: var(--t-sm); }
+.grow { flex: 1; }
+.searchbtn { min-width: 220px; justify-content: space-between; color: var(--ink-3); }
+.searchbtn span.l { display: inline-flex; gap: var(--s-2); align-items: center; }
+.gatebar { display: flex; align-items: center; gap: var(--s-2); }
+.gatebar .lbl { font-size: var(--t-sm); color: var(--ink-3); }
+
+main { max-width: 1480px; margin: 0 auto; padding: var(--s-6) var(--s-6) var(--s-10); outline: none; }
+.view-enter { animation: enter 220ms var(--ease) both; }
+@keyframes enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Case screen --------------------------------------------------------------------------- */
+.casebar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; margin-bottom: var(--s-4); }
+.casebar .nav { display: flex; align-items: center; gap: var(--s-2); }
+.casebar .pos { font-size: var(--t-sm); color: var(--ink-3); min-width: 64px; text-align: center; }
+.meta { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; }
+.qcard { padding: var(--s-5) var(--s-5) var(--s-4); }
+.qtitle { font-size: var(--t-xl); line-height: 1.3; margin: var(--s-2) 0 var(--s-3); font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
+.opts { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.opt { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 3px 10px; border-radius: var(--r-sm); background: var(--bg-raised); border: 1px solid var(--line); color: var(--ink-2); font-size: 13px; }
+.opt b { font-family: var(--mono); color: var(--ink-3); font-weight: 600; }
+.opt.gt { border-color: rgba(12,163,12,.5); color: var(--ink); }
+.opt.gt b, .opt.gt svg { color: #8ee08e; }
+.why { margin-top: var(--s-3); color: var(--ink-3); font-size: 13px; }
+.why .mono { color: var(--ink-2); }
+
+.verdict { display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-4); align-items: center; margin: var(--s-4) 0; padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--surface); position: relative; overflow: hidden; }
+.verdict::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--ink-4); }
+.verdict .ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--surface-2); }
+.verdict h2 { margin: 0; font-size: var(--t-md); letter-spacing: .06em; }
+.verdict p { margin: 2px 0 0; color: var(--ink-2); }
+.verdict p b { color: var(--ink); }
+.verdict.good::before { background: var(--good); } .verdict.good .ic { color: var(--good); background: var(--good-soft); }
+.verdict.warn::before { background: var(--warn); } .verdict.warn .ic { color: var(--warn); background: var(--warn-soft); }
+.verdict.crit::before { background: var(--crit); } .verdict.crit .ic { color: var(--crit); background: var(--crit-soft); }
+.ground { font-size: 13px; color: var(--ink-3); text-align: right; max-width: 300px; }
+.ground b { color: var(--ink); font-weight: 600; }
+
+.views { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); }
+.vcard { display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-3); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); min-width: 0; }
+.vcard.flag-crit { border-color: rgba(229,72,77,.65); box-shadow: 0 0 0 3px var(--crit-soft); }
+.vcard.flag-warn { border-color: rgba(250,178,25,.55); box-shadow: 0 0 0 3px var(--warn-soft); }
+.vhead { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-2); padding: 2px 2px 0; flex-wrap: wrap; }
+.vhead h3 { margin: 0; font-size: 13px; font-weight: 600; }
+.vhead small { font-size: var(--t-xs); color: var(--ink-3); white-space: nowrap; }
+.stage { aspect-ratio: var(--stage, 1); display: grid; place-items: center; background: #000; border-radius: var(--r-md); overflow: hidden; }
+.frame { position: relative; overflow: hidden; background: #000; aspect-ratio: var(--ar, 1); }
+.frame.wide { width: 100%; } .frame.tall { height: 100%; }
+.frame img, .frame svg.ph { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.frame img { opacity: 0; transition: opacity 240ms var(--ease); }
+.frame img.loaded { opacity: 1; }
+.frame.loading { background: linear-gradient(100deg, #151514 30%, #1f1f1d 50%, #151514 70%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.frame svg.ov { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.answer { display: flex; align-items: baseline; gap: var(--s-2); min-height: 26px; padding: 0 2px; min-width: 0; }
+.answer .L { font-family: var(--mono); font-weight: 700; font-size: var(--t-md); width: 18px; flex: none; }
+.answer .T { font-size: var(--t-md); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.answer .P { font-family: var(--mono); font-size: var(--t-sm); color: var(--ink-3); flex: none; }
+.bars { display: grid; grid-template-columns: 22px 1fr 38px; gap: 5px 8px; align-items: center; font-size: var(--t-sm); padding: 0 2px; }
+.bars .bl { font-family: var(--mono); color: var(--ink-3); }
+.bars .bl.gt { color: var(--ink); }
+.bars .tr { height: 8px; border-radius: 0 4px 4px 0; background: var(--surface-3); overflow: hidden; }
+.bars .fi { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--data); transition: width 280ms var(--ease); }
+.bars .fi.ab { background: var(--abstain); }
+.bars .bv { font-family: var(--mono); text-align: right; color: var(--ink-2); }
+.vfoot { display: flex; flex-direction: column; gap: 4px; padding: var(--s-2) 2px 0; border-top: 1px solid var(--line); font-size: var(--t-sm); }
+.kv { display: flex; justify-content: space-between; gap: var(--s-2); color: var(--ink-3); min-width: 0; }
+.kv > span:first-child { flex: none; }
+.kv .mono { color: var(--ink-2); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.empty { display: grid; place-content: center; justify-items: center; text-align: center; gap: var(--s-2); padding: var(--s-6) var(--s-3); border: 1px dashed var(--line-strong); border-radius: var(--r-md);
+  color: var(--ink-3); font-size: var(--t-sm); aspect-ratio: var(--ar, 1); }
+.empty svg { color: var(--ink-4); }
+.legend { display: flex; gap: var(--s-4); flex-wrap: wrap; margin-top: var(--s-4); font-size: var(--t-sm); color: var(--ink-3); align-items: center; }
+.legend i { display: inline-block; width: 18px; height: 10px; vertical-align: -1px; margin-right: 6px; border-radius: 2px; }
+
+/* ---------- Scoreboard ---------------------------------------------------------------------------- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--s-3); margin-bottom: var(--s-4); }
+.tile { padding: var(--s-4); }
+.tile .n { font: 600 var(--t-2xl)/1.1 var(--mono); letter-spacing: -.02em; margin-top: var(--s-2); }
+.tile .d { color: var(--ink-3); font-size: var(--t-sm); margin-top: var(--s-1); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--s-4); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: top; }
+th:first-child, td:first-child { text-align: left; }
+thead th { color: var(--ink-3); font-weight: 500; font-size: var(--t-sm); }
+thead th small { display: block; color: var(--ink-3); font-weight: 400; }
+td { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:first-child { font-family: var(--font); color: var(--ink-2); white-space: normal; min-width: 150px; }
+td .ci { display: block; color: var(--ink-3); font-size: var(--t-xs); }
+tr.after td:first-child { color: var(--ink); }
+.note { color: var(--ink-3); font-size: var(--t-sm); margin: var(--s-3) 0 0; }
+.callout { margin-top: var(--s-3); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--bg-raised); border: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+.callout b { color: var(--ink); }
+#sc circle { cursor: pointer; }
+#sc circle:hover { r: 8; }
+#sc circle:focus { outline: none; stroke: var(--focus); stroke-width: 3; r: 8; }
+
+/* ---------- Gallery ------------------------------------------------------------------------------- */
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; margin-bottom: var(--s-3); }
+.field { display: inline-flex; align-items: center; gap: var(--s-2); height: 32px; padding: 0 var(--s-3); border-radius: var(--r-sm); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-3); min-width: 260px; }
+.field input { background: transparent; border: 0; outline: 0; color: var(--ink); width: 100%; min-width: 0; }
+.field:focus-within { border-color: var(--focus); }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: var(--s-3); }
+.gcard { text-align: left; padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-2); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease), background var(--dur) var(--ease); min-width: 0; }
+.gcard:hover { border-color: var(--line-strong); background: var(--surface-2); transform: translateY(-1px); }
+.gcard .t { font-size: 13px; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 39px; }
+.gcard .id { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); }
+.gcard .row { display: flex; gap: 6px; flex-wrap: wrap; }
+.count { font-size: var(--t-sm); color: var(--ink-3); margin: 0 0 var(--s-3); }
+.emptystate { grid-column: 1 / -1; padding: var(--s-10) var(--s-4); text-align: center; color: var(--ink-3); border: 1px dashed var(--line-strong); border-radius: var(--r-lg); }
+
+/* ---------- Overlays: command menu, dialog, tooltip, toast ---------------------------------------- */
+dialog { border: 0; padding: 0; background: transparent; color: var(--ink); max-width: min(720px, calc(100vw - 32px)); width: 100%; }
+dialog::backdrop { background: rgba(0,0,0,.6); }
+dialog[open] { animation: pop 160ms var(--ease) both; }
+dialog[open]::backdrop { animation: fade 160ms var(--ease) both; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.panel { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-pop); overflow: hidden; }
+.cmd-in { display: flex; align-items: center; gap: var(--s-3); padding: 0 var(--s-4); border-bottom: 1px solid var(--line); color: var(--ink-3); }
+.cmd-in input { flex: 1; min-width: 0; height: 52px; background: transparent; border: 0; outline: 0; font-size: var(--t-md); color: var(--ink); }
+.cmd-list { max-height: min(420px, 60vh); overflow-y: auto; padding: var(--s-2); margin: 0; list-style: none; }
+.cmd-list li { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: var(--s-3); align-items: center; padding: 9px var(--s-3); border-radius: var(--r-sm); cursor: pointer; color: var(--ink-2); }
+.cmd-list li:hover { background: var(--surface-2); }
+.cmd-list li[aria-selected=true] { background: var(--surface-3); color: var(--ink); }
+.cmd-list li .id { font-family: var(--mono); font-size: var(--t-sm); color: var(--ink-3); }
+.cmd-list li .q { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.cmd-list li.cmd-empty { display: block; padding: var(--s-8) var(--s-4); text-align: center; color: var(--ink-3); cursor: default; }
+.cmd-foot { display: flex; gap: var(--s-4); padding: var(--s-2) var(--s-4); border-top: 1px solid var(--line); font-size: var(--t-xs); color: var(--ink-3); }
+.dlg-h { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--line); }
+.dlg-h h2 { margin: 0; font-size: var(--t-md); }
+.dlg-b { padding: var(--s-4) var(--s-5) var(--s-5); max-height: min(70vh, 720px); overflow-y: auto; }
+pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: 12px/1.55 var(--mono); color: var(--ink-2); background: var(--bg); border: 1px solid var(--line); padding: var(--s-3); border-radius: var(--r-md); }
+.prehead { display: flex; justify-content: space-between; align-items: center; gap: var(--s-2); margin: var(--s-4) 0 var(--s-2); }
+.prehead h3 { margin: 0; font-size: var(--t-sm); color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.tip { position: fixed; z-index: 40; left: 0; top: 0; pointer-events: none; background: var(--surface-2); border: 1px solid var(--line-strong); padding: var(--s-2) var(--s-3); border-radius: var(--r-md);
+  font-size: var(--t-sm); max-width: 320px; box-shadow: var(--shadow-pop); opacity: 0; transition: opacity 100ms var(--ease); }
+.tip.on { opacity: 1; }
+.toast { position: fixed; z-index: 50; left: 50%; bottom: var(--s-6); transform: translate(-50%, 12px); opacity: 0; display: flex; gap: var(--s-2); align-items: center;
+  background: var(--surface-2); border: 1px solid var(--line-strong); padding: 10px var(--s-4); border-radius: var(--r-md); box-shadow: var(--shadow-pop); font-size: 13px;
+  transition: opacity 160ms var(--ease), transform 160ms var(--ease); pointer-events: none; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+.toast svg { color: var(--good); }
+.foot { color: var(--ink-3); font-size: var(--t-sm); margin-top: var(--s-6); max-width: 980px; }
+
+/* ---------- Responsive ---------------------------------------------------------------------------- */
+@media (max-width: 1180px) { .views { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid2 { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) {
+  .topbar-in { padding: var(--s-3) var(--s-4); gap: var(--s-3); }
+  .brand span { display: none; }
+  .grow { display: none; }
+  .searchbtn { min-width: 0; margin-left: auto; } .searchbtn .kbd, .searchbtn .t { display: none; }
+  .gatebar { order: 5; width: 100%; }
+  .gatebar .lbl { display: none; }
+  main { padding: var(--s-4) var(--s-4) var(--s-8); }
+  .qtitle { font-size: var(--t-lg); }
+  .verdict { grid-template-columns: auto 1fr; padding: var(--s-4); }
+  .ground { grid-column: 1 / -1; text-align: left; max-width: none; }
+  .field { min-width: 0; width: 100%; }
+  .legend .keys { display: none; }
+  #gf { flex-wrap: wrap; overflow: visible; }
+}
+@media (max-width: 560px) { .views { grid-template-columns: 1fr; } .seg [role=tab] .t { display: none; } .tile .n { font-size: var(--t-xl); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+@media (forced-colors: active) { .badge, .verdict, .vcard { border: 1px solid CanvasText; } }
+</style>
+</head>
+<body>
+<a href="#main" class="sr-only skip">Skip to content</a>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#case" aria-label="Imaced, open the case view">
+      <span class="brand-mark" aria-hidden="true"><svg class="i"><use href="#i-scan"/></svg></span>
+      <b>IMACED</b><span>is the answer coming from the evidence?</span>
+    </a>
+    <div class="seg" role="tablist" aria-label="Screens" id="tabs"></div>
+    <div class="grow"></div>
+    <button class="btn searchbtn" id="openCmd" aria-haspopup="dialog" aria-label="Find a case (Ctrl+K)">
+      <span class="l"><svg class="i sm" aria-hidden="true"><use href="#i-search"/></svg><span class="t">Find a case…</span></span><span class="kbd">Ctrl K</span>
+    </button>
+    <div class="gatebar"><span class="lbl" id="gateLbl">Gate</span><div class="seg" role="radiogroup" aria-labelledby="gateLbl" id="gates"></div></div>
+  </div>
+</header>
+<main id="main" tabindex="-1"></main>
+
+<dialog id="cmd" aria-label="Find a case">
+  <div class="panel">
+    <div class="cmd-in"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+      <input id="cmdInput" type="text" placeholder="Search by case number, question or answer option…" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="cmdList" aria-autocomplete="list">
+      <span class="kbd">Esc</span></div>
+    <ul class="cmd-list" id="cmdList" role="listbox" aria-label="Cases"></ul>
+    <div class="cmd-foot"><span><span class="kbd">↑</span> <span class="kbd">↓</span> move</span><span><span class="kbd">Enter</span> open</span><span><span class="kbd">Esc</span> close</span></div>
+  </div>
+</dialog>
+
+<dialog id="evDlg" aria-labelledby="evTitle">
+  <div class="panel">
+    <div class="dlg-h"><h2 id="evTitle">Evidence</h2><button class="btn ghost icon" id="evClose" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+    <div class="dlg-b" id="evBody"></div>
+  </div>
+</dialog>
+
+<div class="tip" id="tip" role="tooltip"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span id="toastMsg"></span></div>
+
+<!-- Icon sprite: paths from Lucide (ISC license, lucide.dev) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="8" y="8" width="8" height="8" rx="1" stroke-dasharray="2 2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-xcircle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></symbol>
+  <symbol id="i-case" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol>
+</svg>
+
+<script>/* data inlined from cases.js so the page works as a single file */
+window.IMACED = {"summary": {"n_examples": 15, "n_examples_in_csv": 36, "views": ["full", "evid", "rand"], "ground_truth": {"should_abstain": ["evid"], "should_answer": ["full", "rand"]}, "before": {"no_abstain_option": {"abstain_rate": {"full": 0.0, "evid": 0.0, "rand": 0.0}, "accuracy": {"full": 1.0, "evid": 0.4666666666666667, "rand": 0.8666666666666667}, "mean_top_conf": {"full": 0.6589937836648481, "evid": 0.5064488383562715, "rand": 0.6270027695207869}}, "abstain_option_offered_no_edit": {"abstain_rate": {"full": 0.4, "evid": 0.7333333333333333, "rand": 0.4}}}, "after_crossfit": {"n_splits": 200, "conf_gate_abstain_rate": {"full": {"mean": 0.12466666666666665, "p2.5": 0.0, "p97.5": 0.4}, "evid": {"mean": 0.5796666666666667, "p2.5": 0.4, "p97.5": 0.6683333333333337}, "rand": {"mean": 0.3340000000000001, "p2.5": 0.13333333333333333, "p97.5": 0.5333333333333333}}, "logit_gate_abstain_rate": {"full": {"mean": 0.26766666666666666, "p2.5": 0.06666666666666667, "p97.5": 0.4666666666666667}, "evid": {"mean": 0.4456666666666667, "p2.5": 0.265, "p97.5": 0.6}, "rand": {"mean": 0.2946666666666667, "p2.5": 0.13333333333333333, "p97.5": 0.4666666666666667}}, "ui_split_seed": 0, "ui_split": {"conf_gate_abstain_rate": {"full": 0.0, "evid": 0.5333333333333333, "rand": 0.26666666666666666}, "logit_gate_abstain_rate": {"full": 0.26666666666666666, "evid": 0.4666666666666667, "rand": 0.26666666666666666}, "tau_per_fold": [0.495749273529989, 0.5071217101331906], "bias_per_fold": [-1.25, 0.0]}}, "threshold_free_auroc": {"neg_conf_evid_vs_rand": 0.7333333333333333, "neg_conf_evid_vs_full": 0.8222222222222222, "p_abstain_evid_vs_rand": 0.6488888888888888, "p_abstain_evid_vs_full": 0.6799999999999999}, "grounding_check": {"rule": "GROUNDED if d_evid < d_rand (log p of the model's own full-image answer)", "frac_grounded": 0.8666666666666667, "wilcoxon_p_d_evid_vs_d_rand": 0.00115966796875, "mean_d_evid": -0.658651536454757, "mean_d_rand": -0.11258741493026415}, "wrong_answers_with_evidence_masked": {"n": 8, "ds_index": [11695, 12834, 10282, 8294, 13907, 13407, 7414, 14748], "of_these_still_answer_when_abstain_offered": [12834]}}, "cases": [{"ds_index": 16529, "question": "What is the tumor type at image coordinates (0.4, 0.6)?", "options": [["A", "Glioma"], ["B", "Meningioma"], ["C", "Pituitary tumor"], ["D", "Other normal area"]], "gt": "C", "gt_text": "Pituitary tumor", "abstain_letter": "E", "why": null, "box_norm": [0.35, 0.5, 0.52, 0.72], "box_px": [78, 112, 116, 161], "rand_box_px": [28, 120, 66, 169], "img_size": [224, 223], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": false, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "C", "pred_text": "Pituitary tumor", "conf": 0.5074099558576348, "correct": true, "probs": {"A": 0.0881746342310151, "B": 0.2396835059611912, "C": 0.5074099558576348, "D": 0.1647319039501588}, "ab_probs": {"A": 0.050174585812479064, "B": 0.1203625742905881, "C": 0.2548075717727193, "D": 0.15454860460708164, "E": 0.4201066635171319}, "ab_pred": "E", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "C", "pred_text": "Pituitary tumor", "conf": 0.5159701944019103, "correct": true, "probs": {"A": 0.07912660148810162, "B": 0.2150883773322929, "C": 0.5159701944019103, "D": 0.1898148267776952}, "ab_probs": {"A": 0.04518434853546489, "B": 0.10839161737572515, "C": 0.26001797299576185, "D": 0.15770887269826112, "E": 0.42869718839478693}, "ab_pred": "E", "d_logp_answer": 0.016700923442840576, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "C", "pred_text": "Pituitary tumor", "conf": 0.5061801362296185, "correct": true, "probs": {"A": 0.06850403210538263, "B": 0.18621326564823662, "C": 0.5061801362296185, "D": 0.2391025660167621}, "ab_probs": {"A": 0.03998532798168984, "B": 0.08464894000150064, "C": 0.23009967540439916, "D": 0.1581450399587263, "E": 0.48712101665368407}, "ab_pred": "E", "d_logp_answer": -0.0024303793907165527, "gate_conf_abstain": true, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 9688, "question": "What is the category of the object in the image?", "options": [["A", "Breast masses"], ["B", "Benign lesions"], ["C", "Calcifications"], ["D", "Cysts"], ["E", "No abnormality"]], "gt": "A", "gt_text": "Breast masses", "abstain_letter": "F", "why": null, "box_norm": [0.3, 0.3, 0.39, 0.35], "box_px": [240, 400, 312, 467], "rand_box_px": [7, 798, 79, 865], "img_size": [800, 1340], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": false, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "A", "pred_text": "Breast masses", "conf": 0.6961419367259796, "correct": true, "probs": {"A": 0.6961419367259796, "B": 0.039273641787208324, "C": 0.15533026645690853, "D": 0.04450286643747579, "E": 0.06475128859242776}, "ab_probs": {"A": 0.3837918681831847, "B": 0.031503553093922124, "C": 0.0755730951891905, "D": 0.045837399281625356, "E": 0.12459896953106392, "F": 0.33869511472101327}, "ab_pred": "A", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "A", "pred_text": "Breast masses", "conf": 0.3961662071091195, "correct": true, "probs": {"A": 0.39616620710911954, "B": 0.07800974220166192, "C": 0.2722807867653817, "D": 0.08839661869995512, "E": 0.1651466452238818}, "ab_probs": {"A": 0.1930774204356269, "B": 0.04308139574284715, "C": 0.11710737519243428, "D": 0.08048664343711194, "E": 0.2479163152278501, "F": 0.3183308499641297}, "ab_pred": "F", "d_logp_answer": -0.5638638436794281, "gate_conf_abstain": true, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "C", "pred_text": "Calcifications", "conf": 0.5168412472731362, "correct": false, "probs": {"A": 0.2766451843329556, "B": 0.03743985437774546, "C": 0.5168412472731362, "D": 0.0898135416764995, "E": 0.07926017233966327}, "ab_probs": {"A": 0.17272195233630538, "B": 0.034010973033504546, "C": 0.28477035673372036, "D": 0.10476117218589749, "E": 0.15242658794515365, "F": 0.25130895776541856}, "ab_pred": "C", "d_logp_answer": -0.9227921664714813, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 1474, "question": "What type of tooth is at image coordinates (0.625, 0.455)?", "options": [["A", "Caries"], ["B", "Filling"], ["C", "Impacted tooth"], ["D", "Dental implant"]], "gt": "D", "gt_text": "Dental implant", "abstain_letter": "E", "why": null, "box_norm": [0.61, 0.38, 0.64, 0.53], "box_px": [312, 97, 328, 136], "rand_box_px": [1, 178, 17, 217], "img_size": [533, 260], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.495749273529989, "fold_bias": 0.0, "views": {"full": {"pred": "D", "pred_text": "Dental implant", "conf": 0.7665447258294372, "correct": true, "probs": {"A": 0.038164014671895716, "B": 0.10374054758365851, "C": 0.09155071191500846, "D": 0.7665447258294372}, "ab_probs": {"A": 0.03263658634093985, "B": 0.100527763138531, "C": 0.100527763138531, "D": 0.5784973002887336, "E": 0.18781058709326454}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "D", "pred_text": "Dental implant", "conf": 0.5816750535618498, "correct": true, "probs": {"A": 0.06130809959239987, "B": 0.24247823762439727, "C": 0.11453860922135316, "D": 0.5816750535618498}, "ab_probs": {"A": 0.044255050344597126, "B": 0.17503211948959435, "C": 0.10616234690492415, "D": 0.4198802521210974, "E": 0.25467023113978693}, "ab_pred": "D", "d_logp_answer": -0.27616381645202637, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "D", "pred_text": "Dental implant", "conf": 0.7748804811488508, "correct": true, "probs": {"A": 0.03857903094111514, "B": 0.10486867876679254, "C": 0.08167180914324162, "D": 0.7748804811488508}, "ab_probs": {"A": 0.03633780278748406, "B": 0.11192831239866902, "C": 0.09877638900334637, "D": 0.568418906365246, "E": 0.18453858944525448}, "ab_pred": "D", "d_logp_answer": 0.010849624872207642, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 11695, "question": "What type of tooth is at image coordinates (0.44, 0.17)?", "options": [["A", "Caries"], ["B", "Filling"], ["C", "Impacted tooth"], ["D", "Dental implant"]], "gt": "D", "gt_text": "Dental implant", "abstain_letter": "E", "why": null, "box_norm": [0.42, 0.1, 0.46, 0.25], "box_px": [215, 26, 236, 64], "rand_box_px": [288, 81, 309, 119], "img_size": [525, 253], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "D", "pred_text": "Dental implant", "conf": 0.7413594131389544, "correct": true, "probs": {"A": 0.06895716302446975, "B": 0.12882894105646034, "C": 0.06085448278011555, "D": 0.7413594131389544}, "ab_probs": {"A": 0.052550465144186695, "B": 0.0981771940668097, "C": 0.07646047561898468, "D": 0.564970743699597, "E": 0.2078411214704219}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "B", "pred_text": "Filling", "conf": 0.4743223336962855, "correct": false, "probs": {"A": 0.13589561576189543, "B": 0.4743223336962855, "C": 0.13589561576189543, "D": 0.25388643477992373}, "ab_probs": {"A": 0.07913072402413374, "B": 0.1675197440736641, "C": 0.06983261885057446, "D": 0.1675197440736641, "E": 0.5159971689779637}, "ab_pred": "E", "d_logp_answer": -1.071937620639801, "gate_conf_abstain": true, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "D", "pred_text": "Dental implant", "conf": 0.6388196895709067, "correct": true, "probs": {"A": 0.08645483847209358, "B": 0.20739437605462144, "C": 0.06733109590237829, "D": 0.6388196895709067}, "ab_probs": {"A": 0.06666090211936128, "B": 0.1599111911676947, "C": 0.07553669811659335, "D": 0.49256117472421845, "E": 0.20533003387213228}, "ab_pred": "D", "d_logp_answer": -0.14896774291992188, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 12834, "question": "Which half of the image (left or right) contains the breast mass?", "options": [["A", "Left half"], ["B", "Right half"], ["C", "No mass is present"]], "gt": "A", "gt_text": "Left half", "abstain_letter": "D", "why": null, "box_norm": [0.0, 0.36, 0.31, 0.64], "box_px": [0, 451, 248, 801], "rand_box_px": [424, 236, 672, 586], "img_size": [800, 1250], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "A", "pred_text": "Left half", "conf": 0.9412870267430068, "correct": true, "probs": {"A": 0.9412870267430069, "B": 0.046863918935511846, "C": 0.01184905432148122}, "ab_probs": {"A": 0.9142271277905276, "B": 0.04016833992250268, "C": 0.005436192364467024, "D": 0.04016833992250268}, "ab_pred": "A", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "B", "pred_text": "Right half", "conf": 0.7111391579648557, "correct": false, "probs": {"A": 0.17980412654360048, "B": 0.7111391579648557, "C": 0.10905671549154382}, "ab_probs": {"A": 0.11877850728738142, "B": 0.6032070326160708, "C": 0.05610699402706385, "D": 0.22190746606948408}, "ab_pred": "B", "d_logp_answer": -1.6560061536729336, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "A", "pred_text": "Left half", "conf": 0.9019295100994602, "correct": true, "probs": {"A": 0.9019295100994602, "B": 0.0740348825953679, "C": 0.02403560730517193}, "ab_probs": {"A": 0.8779903153173093, "B": 0.05612804636393054, "C": 0.009753591954829626, "D": 0.05612804636393054}, "ab_pred": "A", "d_logp_answer": -0.04279118403792381, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 10282, "question": "What type of tooth is at image coordinates (0.46, 0.17)?", "options": [["A", "Caries"], ["B", "Filling"], ["C", "Impacted tooth"], ["D", "Dental implant"]], "gt": "D", "gt_text": "Dental implant", "abstain_letter": "E", "why": null, "box_norm": [0.45, 0.1, 0.48, 0.25], "box_px": [230, 26, 246, 64], "rand_box_px": [440, 117, 456, 155], "img_size": [533, 253], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.495749273529989, "fold_bias": 0.0, "views": {"full": {"pred": "D", "pred_text": "Dental implant", "conf": 0.5171540982345727, "correct": true, "probs": {"A": 0.0898679123783254, "B": 0.31366983507148594, "C": 0.07930815431561598, "D": 0.5171540982345727}, "ab_probs": {"A": 0.06627905626966339, "B": 0.18016515426524055, "C": 0.07510401008269821, "D": 0.3814096573063258, "E": 0.297042122076072}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "B", "pred_text": "Filling", "conf": 0.4970893220318086, "correct": false, "probs": {"A": 0.14241846674129058, "B": 0.49708932203180867, "C": 0.12568385577003616, "D": 0.23480835545686457}, "ab_probs": {"A": 0.07575146249076607, "B": 0.1817182901884645, "C": 0.06685043101435423, "D": 0.1817182901884645, "E": 0.49396152611795063}, "ab_pred": "E", "d_logp_answer": -0.7897099852561951, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "D", "pred_text": "Dental implant", "conf": 0.4745338603735137, "correct": true, "probs": {"A": 0.1058828225721026, "B": 0.3261420540975889, "C": 0.09344126295679483, "D": 0.47453386037351375}, "ab_probs": {"A": 0.06807879413390058, "B": 0.1633125372908863, "C": 0.07714338025948438, "D": 0.34573264415786437, "E": 0.34573264415786437}, "ab_pred": "D", "d_logp_answer": -0.0860595703125, "gate_conf_abstain": true, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 2568, "question": "Which category does the mass in the image belong to?", "options": [["A", "Breast masses"], ["B", "Calcifications"], ["C", "Architectural distortions"]], "gt": "A", "gt_text": "Breast masses", "abstain_letter": "D", "why": null, "box_norm": [0.0, 0.3, 0.31, 0.6], "box_px": [0, 376, 248, 751], "rand_box_px": [237, 753, 485, 1128], "img_size": [800, 1250], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "A", "pred_text": "Breast masses", "conf": 0.8247779982363467, "correct": true, "probs": {"A": 0.8247779982363467, "B": 0.07671630993395759, "C": 0.0985056918296958}, "ab_probs": {"A": 0.7355659198353348, "B": 0.05328421492755396, "C": 0.025169680920839984, "D": 0.1859801843162711}, "ab_pred": "A", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "A", "pred_text": "Breast masses", "conf": 0.8141003733147055, "correct": true, "probs": {"A": 0.8141003733147055, "B": 0.07572312700499015, "C": 0.11017649968030435}, "ab_probs": {"A": 0.6800031226630798, "B": 0.04347114265465102, "C": 0.026366580832787482, "D": 0.2501591538494816}, "ab_pred": "A", "d_logp_answer": -0.013327479362487793, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "A", "pred_text": "Breast masses", "conf": 0.8338453591783446, "correct": true, "probs": {"A": 0.8338453591783446, "B": 0.05330594800644881, "C": 0.11284869281520651}, "ab_probs": {"A": 0.6810910395768796, "B": 0.03842452595840185, "C": 0.029925050905550882, "D": 0.25055938355916757}, "ab_pred": "A", "d_logp_answer": 0.010931611061096191, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 6454, "question": "Which of the following annotations is present in the image?", "options": [["A", "Steatosis"], ["B", "Fibrosis"], ["C", "Inflammation"]], "gt": "A", "gt_text": "Steatosis", "abstain_letter": "D", "why": null, "box_norm": [0.43, 0.35, 0.71, 0.69], "box_px": [129, 105, 212, 206], "rand_box_px": [35, 164, 118, 265], "img_size": [296, 297], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.495749273529989, "fold_bias": 0.0, "views": {"full": {"pred": "A", "pred_text": "Steatosis", "conf": 0.7111391425976376, "correct": true, "probs": {"A": 0.7111391425976376, "B": 0.10905672938562254, "C": 0.17980412801673998}, "ab_probs": {"A": 0.17695932900968409, "B": 0.01865137383319137, "C": 0.01131263007559251, "D": 0.793076667081532}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "A", "pred_text": "Steatosis", "conf": 0.5761168847658291, "correct": true, "probs": {"A": 0.5761168847658291, "B": 0.21194155761708544, "C": 0.21194155761708544}, "ab_probs": {"A": 0.09233356200096891, "B": 0.02060240247635117, "C": 0.011027668751213481, "D": 0.8760363667714665}, "ab_pred": "D", "d_logp_answer": -0.21160057187080383, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "A", "pred_text": "Steatosis", "conf": 0.7817549793118931, "correct": true, "probs": {"A": 0.7817549793118931, "B": 0.08239637107245301, "C": 0.135848649615654}, "ab_probs": {"A": 0.23828850927259557, "B": 0.01726156377349943, "C": 0.010469667663212303, "D": 0.7339802592906927}, "ab_pred": "D", "d_logp_answer": 0.09465581178665161, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 16483, "question": "Which distribution pattern best describes the stenotic segments?", "options": [["A", "Continuous segments (e.g., L3-L4 and L4-L5)"], ["B", "Skip segments (e.g., L3-L4 and L5-S1)"], ["C", "Single segment"], ["D", "No stenosis"]], "gt": "A", "gt_text": "Continuous segments (e.g., L3-L4 and L4-L5)", "abstain_letter": "E", "why": null, "box_norm": [0.6, 0.45, 0.65, 0.54], "box_px": [230, 173, 250, 207], "rand_box_px": [161, 151, 181, 185], "img_size": [400, 378], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "A", "pred_text": "Continuous segments (e.g., L3-L4 and L4-L5)", "conf": 0.5192372122955206, "correct": true, "probs": {"A": 0.5192372122955204, "B": 0.4582252315574568, "C": 0.020133010383489507, "D": 0.0024045457635331544}, "ab_probs": {"A": 0.492760703368118, "B": 0.2988744923086333, "C": 0.016861341032147037, "D": 0.010226920299867838, "E": 0.18127654299123375}, "ab_pred": "A", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "A", "pred_text": "Continuous segments (e.g., L3-L4 and L4-L5)", "conf": 0.4853184108303594, "correct": true, "probs": {"A": 0.4853184108303594, "B": 0.4853184108303594, "C": 0.027379792801119858, "D": 0.00198338553816127}, "ab_probs": {"A": 0.45220805523348967, "B": 0.3521799875270389, "C": 0.019868632938238234, "D": 0.009385277648712172, "E": 0.1663580466525209}, "ab_pred": "A", "d_logp_answer": -0.06758439540863037, "gate_conf_abstain": true, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "A", "pred_text": "Continuous segments (e.g., L3-L4 and L4-L5)", "conf": 0.5179949890289599, "correct": true, "probs": {"A": 0.5179949890289599, "B": 0.4571289733723986, "C": 0.022759110093674352, "D": 0.002116927504967163}, "ab_probs": {"A": 0.47445027759743724, "B": 0.3260845696759637, "C": 0.01623479863483986, "D": 0.008689861509002535, "E": 0.17454049258275653}, "ab_pred": "A", "d_logp_answer": -0.0023870468139648438, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 8294, "question": "What is the type of tumor in the brain image?", "options": [["A", "Glioma"], ["B", "Meningioma"], ["C", "No tumor"]], "gt": "B", "gt_text": "Meningioma", "abstain_letter": "D", "why": null, "box_norm": [0.09, 0.38, 0.35, 0.72], "box_px": [20, 85, 78, 161], "rand_box_px": [120, 128, 178, 204], "img_size": [223, 224], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "B", "pred_text": "Meningioma", "conf": 0.5154296625401942, "correct": true, "probs": {"A": 0.35424930214962747, "B": 0.5154296625401942, "C": 0.13032103531017836}, "ab_probs": {"A": 0.2714018590399897, "B": 0.23951129995849188, "C": 0.04162082309472957, "D": 0.44746601790678886}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "C", "pred_text": "No tumor", "conf": 0.5773095066830043, "correct": false, "probs": {"A": 0.30901151124473847, "B": 0.11367898207225725, "C": 0.5773095066830043}, "ab_probs": {"A": 0.0632250460381409, "B": 0.0205261671951277, "C": 0.04345389629307988, "D": 0.8727948904736516}, "ab_pred": "D", "d_logp_answer": -1.511812150478363, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "A", "pred_text": "Glioma", "conf": 0.4530730967364705, "correct": false, "probs": {"A": 0.45307309673647056, "B": 0.3998356045143461, "C": 0.14709129874918345}, "ab_probs": {"A": 0.26962902412396406, "B": 0.1273637326443608, "C": 0.032202594681983984, "D": 0.5708046485496913}, "ab_pred": "D", "d_logp_answer": -0.25396889448165894, "gate_conf_abstain": true, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 13907, "question": "What is the type of tumor in the brain image?", "options": [["A", "Glioma"], ["B", "Meningioma"], ["C", "No tumor"]], "gt": "B", "gt_text": "Meningioma", "abstain_letter": "D", "why": null, "box_norm": [0.5, 0.22, 0.74, 0.49], "box_px": [112, 49, 166, 110], "rand_box_px": [123, 135, 177, 196], "img_size": [225, 226], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.495749273529989, "fold_bias": 0.0, "views": {"full": {"pred": "B", "pred_text": "Meningioma", "conf": 0.6097590193178248, "correct": true, "probs": {"A": 0.25418536115938645, "B": 0.6097590193178248, "C": 0.13605561952278866}, "ab_probs": {"A": 0.16673618658998982, "B": 0.21409350146313672, "C": 0.03720387201636292, "D": 0.5819664399305106}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "A", "pred_text": "Glioma", "conf": 0.4442139938773322, "correct": false, "probs": {"A": 0.44421399387733224, "B": 0.34595418566246566, "C": 0.20983182046020218}, "ab_probs": {"A": 0.16658550391434113, "B": 0.061283374781722924, "C": 0.02554671138422399, "D": 0.746584409919712}, "ab_pred": "D", "d_logp_answer": -0.5663061738014221, "gate_conf_abstain": true, "gate_logit_abstain": true, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "B", "pred_text": "Meningioma", "conf": 0.5796408596083313, "correct": true, "probs": {"A": 0.2738029710009543, "B": 0.5796408596083313, "C": 0.14655616939071445}, "ab_probs": {"A": 0.18394203411667673, "B": 0.20843363141327761, "C": 0.041043015530482015, "D": 0.5665813189395636}, "ab_pred": "D", "d_logp_answer": -0.05061209201812744, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 5088, "question": "What type of tooth is at image coordinates (0.52, 0.47)?", "options": [["A", "Caries"], ["B", "Filling"], ["C", "Impacted tooth"], ["D", "Dental implant"]], "gt": "D", "gt_text": "Dental implant", "abstain_letter": "E", "why": null, "box_norm": [0.51, 0.4, 0.53, 0.55], "box_px": [261, 102, 271, 141], "rand_box_px": [44, 93, 54, 132], "img_size": [500, 260], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.495749273529989, "fold_bias": 0.0, "views": {"full": {"pred": "D", "pred_text": "Dental implant", "conf": 0.6387009410284412, "correct": true, "probs": {"A": 0.06731858993008143, "B": 0.18299087791021257, "C": 0.11098959113126472, "D": 0.6387009410284412}, "ab_probs": {"A": 0.050493046121787774, "B": 0.13725432973640017, "C": 0.10689377947864925, "D": 0.47906471173107085, "E": 0.22629413293209208}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "D", "pred_text": "Dental implant", "conf": 0.3954699049739945, "correct": true, "probs": {"A": 0.06872237309564862, "B": 0.34900096620497445, "C": 0.18680675572538244, "D": 0.3954699049739945}, "ab_probs": {"A": 0.048839107377732255, "B": 0.21888171983258256, "C": 0.13275845810304968, "D": 0.2810496915133613, "E": 0.3184710231732741}, "ab_pred": "E", "d_logp_answer": -0.47948649525642395, "gate_conf_abstain": true, "gate_logit_abstain": true, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "D", "pred_text": "Dental implant", "conf": 0.718154899790027, "correct": true, "probs": {"A": 0.04591011086337742, "B": 0.1602420130259441, "C": 0.07569297632065138, "D": 0.718154899790027}, "ab_probs": {"A": 0.0414076412094449, "B": 0.1445268688804927, "C": 0.09933176747879126, "D": 0.5044483690285037, "E": 0.2102853534027674}, "ab_pred": "D", "d_logp_answer": 0.11729145050048828, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 13407, "question": "What is the tumor type at image coordinates (0.5, 0.6)?", "options": [["A", "Glioma"], ["B", "Meningioma"], ["C", "Pituitary tumor"], ["D", "Other normal area"]], "gt": "C", "gt_text": "Pituitary tumor", "abstain_letter": "E", "why": null, "box_norm": [0.44, 0.53, 0.57, 0.68], "box_px": [99, 119, 128, 152], "rand_box_px": [139, 112, 168, 145], "img_size": [223, 220], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.495749273529989, "fold_bias": 0.0, "views": {"full": {"pred": "C", "pred_text": "Pituitary tumor", "conf": 0.5357296045136983, "correct": true, "probs": {"A": 0.1054914138812727, "B": 0.22332532493914883, "C": 0.5357296045136983, "D": 0.13545365666588016}, "ab_probs": {"A": 0.0593260887257404, "B": 0.11083572543212984, "C": 0.26588108342805705, "D": 0.12559333081795743, "E": 0.43836377159611534}, "ab_pred": "E", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "D", "pred_text": "Other normal area", "conf": 0.3060136256597631, "correct": false, "probs": {"A": 0.18560664625247092, "B": 0.23832365129434321, "C": 0.27005607679342275, "D": 0.30601362565976303}, "ab_probs": {"A": 0.06023210254353765, "B": 0.06023210254353765, "C": 0.06825191382217213, "D": 0.16372781031610312, "E": 0.6475560707746495}, "ab_pred": "E", "d_logp_answer": -0.6853957176208496, "gate_conf_abstain": true, "gate_logit_abstain": true, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "C", "pred_text": "Pituitary tumor", "conf": 0.3881207341645941, "correct": true, "probs": {"A": 0.16179279312295816, "B": 0.26675121946780656, "C": 0.38812073416459414, "D": 0.1833352532446411}, "ab_probs": {"A": 0.06169089333194128, "B": 0.0897597201581018, "C": 0.11525376207778174, "D": 0.1479887598767535, "E": 0.5853068645554217}, "ab_pred": "E", "d_logp_answer": -0.3224782943725586, "gate_conf_abstain": true, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 7414, "question": "What is the type of tumor in the brain image?", "options": [["A", "Glioma"], ["B", "Meningioma"], ["C", "No tumor"]], "gt": "B", "gt_text": "Meningioma", "abstain_letter": "D", "why": null, "box_norm": [0.42, 0.18, 0.66, 0.44], "box_px": [94, 40, 148, 99], "rand_box_px": [139, 124, 193, 183], "img_size": [225, 227], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.495749273529989, "fold_bias": 0.0, "views": {"full": {"pred": "B", "pred_text": "Meningioma", "conf": 0.607481569706767, "correct": true, "probs": {"A": 0.286953974936086, "B": 0.607481569706767, "C": 0.10556445535714691}, "ab_probs": {"A": 0.24068841125656656, "B": 0.27273570088649046, "C": 0.03691076332820927, "D": 0.4496651245287338}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "A", "pred_text": "Glioma", "conf": 0.4443701130394402, "correct": false, "probs": {"A": 0.44437011303944013, "B": 0.16347463860208736, "C": 0.3921552483584725}, "ab_probs": {"A": 0.08136459027733906, "B": 0.02057219011854121, "C": 0.023311345409021623, "D": 0.8747518741950981}, "ab_pred": "D", "d_logp_answer": -1.3127042055130005, "gate_conf_abstain": true, "gate_logit_abstain": true, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "B", "pred_text": "Meningioma", "conf": 0.5282521087545019, "correct": true, "probs": {"A": 0.32040111911485214, "B": 0.5282521087545019, "C": 0.15134677213064593}, "ab_probs": {"A": 0.2232998239140009, "B": 0.19706140295179136, "C": 0.04397034239970747, "D": 0.5356684307345001}, "ab_pred": "D", "d_logp_answer": -0.139690101146698, "gate_conf_abstain": false, "gate_logit_abstain": true, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}, {"ds_index": 14748, "question": "What type of tooth is at image coordinates (0.53, 0.17)?", "options": [["A", "Caries"], ["B", "Filling"], ["C", "Impacted tooth"], ["D", "Dental implant"]], "gt": "D", "gt_text": "Dental implant", "abstain_letter": "E", "why": null, "box_norm": [0.52, 0.1, 0.55, 0.25], "box_px": [266, 26, 282, 64], "rand_box_px": [232, 68, 248, 106], "img_size": [533, 253], "img_size_note": "estimated from box", "self_box_px": null, "self_iou": null, "grounded": true, "fold_tau": 0.5071217101331906, "fold_bias": -1.25, "views": {"full": {"pred": "D", "pred_text": "Dental implant", "conf": 0.7527544482067056, "correct": true, "probs": {"A": 0.07001707050100156, "B": 0.11543863344711176, "C": 0.06178984784518113, "D": 0.7527544482067056}, "ab_probs": {"A": 0.05585914506206817, "B": 0.09209616062695583, "C": 0.0717245620141431, "D": 0.5299768123937336, "E": 0.2503433199030994}, "ab_pred": "D", "d_logp_answer": 0.0, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}, "evid": {"pred": "B", "pred_text": "Filling", "conf": 0.3774574934338141, "correct": false, "probs": {"A": 0.12254250656618586, "B": 0.37745749343381413, "C": 0.12254250656618586, "D": 0.37745749343381413}, "ab_probs": {"A": 0.0799740514603782, "B": 0.19184777620675458, "C": 0.09062247269781432, "D": 0.27913686729442194, "E": 0.35841883234063093}, "ab_pred": "E", "d_logp_answer": -0.690575361251831, "gate_conf_abstain": true, "gate_logit_abstain": false, "should_abstain": true, "img": null, "first_answer": null, "first_answer_ab": null}, "rand": {"pred": "D", "pred_text": "Dental implant", "conf": 0.791019591543196, "correct": true, "probs": {"A": 0.057301269582288254, "B": 0.107052865252844, "C": 0.04462627362167177, "D": 0.791019591543196}, "ab_probs": {"A": 0.04527064782975034, "B": 0.08457670479826888, "C": 0.05812866244331918, "D": 0.5515093937830673, "E": 0.2605145911455943}, "ab_pred": "D", "d_logp_answer": 0.049637749791145325, "gate_conf_abstain": false, "gate_logit_abstain": false, "should_abstain": false, "img": null, "first_answer": null, "first_answer_ab": null}}}], "model": "Qwen/Qwen2.5-VL-7B-Instruct", "dataset": "jline/ViTAR-16K (train split)"};
+</script>
+<script>
+"use strict";
+const D = window.IMACED;
+const S = D && D.summary;
+const VIEW_ORDER = ["full", "out", "evid", "rand"];
+const VIEW_NAME = { full: "Full image", out: "Surroundings masked", evid: "Evidence masked", rand: "Random region masked" };
+const VIEW_SUB = { full: "should answer", out: "should answer · box kept", evid: "should abstain", rand: "should answer · control" };
+const GATES = [["off", "Before"], ["logit", "Logit edit"], ["conf", "Confidence"]];
+const TABS = [["case", "Case", "i-case"], ["score", "Scoreboard", "i-chart"], ["gallery", "Gallery", "i-grid"]];
+const state = { tab: "case", gate: "off", idx: 0, filter: "all", q: "" };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const f2 = x => (x == null || Number.isNaN(+x)) ? "–" : (+x).toFixed(2);
+const pct = x => (x == null || Number.isNaN(+x)) ? "–" : Math.round(100 * x) + "%";
+const signed = x => (x >= 0 ? "+" : "") + f2(x);
+const icon = (id, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+
+/* ---------------- model of the check ---------------- */
+function gateAbstains(v, gate = state.gate) {
+  if (gate === "logit") return !!v.gate_logit_abstain;
+  if (gate === "conf") return !!v.gate_conf_abstain;
+  return false;
+}
+function caseStatus(c, gate = state.gate) {
+  const ev = c.views.evid;
+  if (!ev) return { cls: "", key: "na", fa: [] };
+  if (gate === "off") return ev.correct ? { cls: "warn", key: "answered", fa: [] } : { cls: "crit", key: "wrong", fa: [] };
+  const fa = VIEW_ORDER.filter(k => k !== "evid" && c.views[k] && gateAbstains(c.views[k], gate));
+  if (!gateAbstains(ev, gate)) return { cls: "crit", key: "missed", fa };
+  return fa.length ? { cls: "warn", key: "caught_fa", fa } : { cls: "good", key: "caught", fa };
+}
+function withBias(probs, ab, b) {
+  // Exact logit edit: add b to the abstain option's log-prob and renormalize over the option letters.
+  const lp = Object.fromEntries(Object.entries(probs).map(([L, p]) => [L, Math.log(p) + (L === ab ? b : 0)]));
+  const m = Math.max(...Object.values(lp)), z = Object.values(lp).reduce((s, x) => s + Math.exp(x - m), 0);
+  return Object.fromEntries(Object.entries(lp).map(([L, x]) => [L, Math.exp(x - m) / z]));
+}
+const optText = (c, L) => (c.options.find(([l]) => l === L) || [])[1];
+
+/* ---------------- routing: #case/12834, #score, #gallery ---------------- */
+function readHash() {
+  const [tab, id] = location.hash.replace(/^#/, "").split("/");
+  if (TABS.some(t => t[0] === tab)) state.tab = tab;
+  if (id) { const i = D.cases.findIndex(c => String(c.ds_index) === id); if (i >= 0) state.idx = i; }
+}
+function go(tab, idx = state.idx) {
+  state.tab = tab; state.idx = idx;
+  const h = tab === "case" ? `#case/${D.cases[idx].ds_index}` : `#${tab}`;
+  if (location.hash !== h) history.pushState(null, "", h);
+  render(true);
+}
+window.addEventListener("popstate", () => { readHash(); render(true); });
+
+/* ---------------- shell ---------------- */
+function shell() {
+  $("#tabs").innerHTML = TABS.map(([k, l, ic]) =>
+    `<button role="tab" id="tab-${k}" aria-controls="main" aria-selected="${state.tab === k}" tabindex="${state.tab === k ? 0 : -1}" data-tab="${k}" aria-label="${l}">${icon(ic, "sm")}<span class="t">${l}</span></button>`).join("");
+  $("#gates").innerHTML = GATES.map(([k, l]) =>
+    `<button role="radio" aria-checked="${state.gate === k}" tabindex="${state.gate === k ? 0 : -1}" data-gate="${k}">${l}</button>`).join("");
+}
+function rovingKeys(container, attr, onPick) {
+  container.addEventListener("keydown", e => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    const items = [...container.querySelectorAll(`[${attr}]`)];
+    let i = items.indexOf(document.activeElement);
+    i = e.key === "Home" ? 0 : e.key === "End" ? items.length - 1 : (i + (e.key === "ArrowRight" ? 1 : -1) + items.length) % items.length;
+    const key = items[i].getAttribute(attr);
+    e.preventDefault(); onPick(key);
+    container.querySelector(`[${attr}="${key}"]`).focus();
+  });
+}
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b) go(b.dataset.tab); });
+$("#gates").addEventListener("click", e => { const b = e.target.closest("[data-gate]"); if (b) { state.gate = b.dataset.gate; render(); } });
+rovingKeys($("#tabs"), "data-tab", k => go(k));
+rovingKeys($("#gates"), "data-gate", k => { state.gate = k; render(); });
+
+/* ---------------- shared drawing ---------------- */
+function overlay(c, view) {
+  const [W, H] = c.img_size, sw = Math.max(2, W / 220);
+  const r = (b, a) => b ? `<rect x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}" ${a}/>` : "";
+  let s = r(c.box_px, `fill="none" stroke="#fab219" stroke-width="${sw}" stroke-dasharray="${W / 60} ${W / 90}"`);
+  if (view === "rand") s += r(c.rand_box_px, `fill="none" stroke="#c3c2b7" stroke-width="${sw}"`);
+  return `<svg class="ov" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`;
+}
+function schematic(c, view) {
+  // Drawn when the real image has not been exported yet (vitar_abstention.py SAVE_IMAGES writes results/img).
+  const [W, H] = c.img_size, g = "#7c7468", bg = "#232321";
+  const rect = (b, f) => `<rect x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}" fill="${f}"/>`;
+  let s = `<rect width="${W}" height="${H}" fill="${bg}"/>`;
+  if (view === "evid") s += rect(c.box_px, g);
+  if (view === "rand") s += rect(c.rand_box_px, g);
+  if (view === "out") s = `<rect width="${W}" height="${H}" fill="${g}"/>` + rect(c.box_px, bg);
+  s += `<text x="${W / 2}" y="${H - W / 28}" fill="#9a998f" font-size="${W / 28}" text-anchor="middle" font-family="system-ui">schematic · image not exported</text>`;
+  return `<svg class="ph" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Schematic of ${VIEW_NAME[view]}, boxes only">${s}</svg>`;
+}
+function frame(c, view, img, stage = 1) {
+  // The image keeps its own aspect ratio inside a fixed-ratio stage, so cards line up and the
+  // box overlay (drawn in image pixels) stays exactly on the image.
+  const ar = `${c.img_size[0]} / ${c.img_size[1]}`, fit = c.img_size[0] / c.img_size[1] >= stage ? "wide" : "tall";
+  const inner = img
+    ? `<img src="${esc(img)}" alt="${VIEW_NAME[view]}, case ${c.ds_index}" loading="lazy" decoding="async" onload="this.classList.add('loaded');this.parentNode.classList.remove('loading')" onerror="this.parentNode.classList.remove('loading')">`
+    : schematic(c, view);
+  return `<div class="stage" style="--stage:${stage}"><div class="frame ${fit} ${img ? "loading" : ""}" style="--ar:${ar}">${inner}${overlay(c, view)}</div></div>`;
+}
+function bars(probs, gt, ab) {
+  return `<div class="bars" role="list" aria-label="Probability per option">` + Object.entries(probs).map(([L, p]) => {
+    const isAb = L === ab, label = isAb ? "Cannot be determined" : `Option ${L}`;
+    return `<span class="bl ${L === gt ? "gt" : ""}" role="listitem" aria-label="${label}: ${p.toFixed(2)}${L === gt ? ", the labelled answer" : ""}" title="${label}">${isAb ? "?" : L}${L === gt ? "✓" : ""}</span>
+      <span class="tr" aria-hidden="true"><span class="fi ${isAb ? "ab" : ""}" style="width:${(100 * p).toFixed(1)}%"></span></span>
+      <span class="bv" aria-hidden="true">${p.toFixed(2)}</span>`;
+  }).join("") + `</div>`;
+}
+const BADGE = {
+  correct: ["good", "i-check", "Correct"], wrong: ["crit", "i-x", "Wrong"],
+  wrong_noev: ["crit", "i-x", "Wrong · no evidence"], ans_noev: ["warn", "i-alert", "Answered · no evidence"],
+  abstained: ["good", "i-check", "Abstained"], answered: ["good", "i-check", "Answered"],
+  missed: ["crit", "i-x", "Answered · missed"], false_alarm: ["warn", "i-alert", "Abstained · false alarm"],
+};
+const badge = k => { const [c, i, t] = BADGE[k]; return `<span class="badge ${c}">${icon(i)}${t}</span>`; };
+
+/* ---------------- case screen ---------------- */
+function viewCard(c, k) {
+  const v = c.views[k];
+  if (!v) return `<article class="vcard" aria-label="${VIEW_NAME[k]}"><div class="vhead"><h3>${VIEW_NAME[k]}</h3><small>${VIEW_SUB[k]}</small></div>
+    <div class="empty" style="--ar:1">${icon("i-image", "lg")}<div>Not in this run</div><div class="muted">Produced by the patched <span class="mono">vitar_abstention.py</span></div></div></article>`;
+  const ab = gateAbstains(v), on = state.gate !== "off";
+  let b, flag = "";
+  if (!on) b = k === "evid" ? (v.correct ? "ans_noev" : "wrong_noev") : (v.correct ? "correct" : "wrong");
+  else if (ab === v.should_abstain) b = ab ? "abstained" : "answered";
+  else { b = k === "evid" ? "missed" : "false_alarm"; flag = k === "evid" ? "flag-crit" : "flag-warn"; }
+  const logit = state.gate === "logit" && v.ab_probs;
+  const shown = logit ? withBias(v.ab_probs, c.abstain_letter, c.fold_bias || 0) : v.probs;
+  const top = Object.entries(shown).filter(([L]) => !(logit && L === c.abstain_letter)).sort((x, y) => y[1] - x[1])[0];
+  const ans = on && ab
+    ? `<span class="L">?</span><span class="T">Cannot be determined</span>`
+    : `<span class="L">${esc(top[0])}</span><span class="T" title="${esc(optText(c, top[0]))}">${esc(optText(c, top[0]))}</span><span class="P">p ${f2(logit ? top[1] : v.conf)}</span>`;
+  const fa = v.first_answer;
+  return `<article class="vcard ${flag}" aria-label="${VIEW_NAME[k]}">
+    <div class="vhead"><h3>${VIEW_NAME[k]}</h3><small>${VIEW_SUB[k]}</small></div>
+    ${frame(c, k, v.img)}
+    <div class="answer">${ans}</div>
+    <div>${badge(b)}</div>
+    ${bars(shown, c.gt, c.abstain_letter)}
+    <div class="vfoot">
+      <div class="kv"><span>Δ log p(answer)</span><span class="mono">${k === "full" ? "reference" : f2(v.d_logp_answer)}</span></div>
+      <div class="kv"><span>First generated answer</span><span class="mono" title="${esc(fa ? fa.raw_output : "")}">${fa ? esc(fa.raw_output) : "not logged"}</span></div>
+      ${logit ? `<div class="kv"><span>Abstain-logit edit</span><span class="mono">${signed(c.fold_bias)}</span></div>` : ""}
+    </div>
+  </article>`;
+}
+function verdict(c) {
+  const ev = c.views.evid, st = caseStatus(c);
+  const did = `Qwen answered <b>“${esc(ev.pred_text)}”</b> at p ${f2(ev.conf)} with the evidence box masked.`;
+  const fa = st.fa.length ? ` False alarm on ${st.fa.map(k => VIEW_NAME[k].toLowerCase()).join(" and ")}.` : "";
+  const thr = state.gate === "conf" ? `confidence threshold ${f2(c.fold_tau)}` : `abstain-logit edit ${signed(c.fold_bias)}`;
+  const M = {
+    wrong: ["i-xcircle", "Wrong, and it looks confident", `${did} The labelled answer is ${c.gt} (${esc(c.gt_text)}). With the evidence hidden, the right behaviour is to abstain.`],
+    answered: ["i-alert", "Answered without the evidence", `${did} The letter matches the label, but the region that shows it is gray.`],
+    missed: ["i-xcircle", "Missed", `The gate let the evidence-masked answer through (held-out ${thr}).${fa}`],
+    caught: ["i-shield", "Caught", `Imaced abstains on the evidence-masked image and answers on every view where the evidence is visible (held-out ${thr}).`],
+    caught_fa: ["i-shield", "Caught, with a false alarm", `Imaced abstains on the evidence-masked image (held-out ${thr}).${fa}`],
+  }[st.key];
+  const g = c.views.evid && c.views.rand
+    ? `Grounding check: <b>${c.grounded ? "grounded" : "not grounded"}</b><br><span class="mono">Δ evidence ${f2(c.views.evid.d_logp_answer)} · Δ random ${f2(c.views.rand.d_logp_answer)}</span>` : "";
+  return `<section class="verdict ${st.cls}" aria-live="polite" aria-atomic="true"><div class="ic">${icon(M[0], "lg")}</div>
+    <div><h2>${M[1].toUpperCase()}</h2><p>${M[2]}</p></div><div class="ground">${g}</div></section>`;
+}
+function caseView() {
+  const c = D.cases[state.idx], n = D.cases.length;
+  const opts = c.options.map(([L, t]) => `<span class="opt ${L === c.gt ? "gt" : ""}"><b>${L}</b>${esc(t)}${L === c.gt ? icon("i-check", "sm") : ""}</span>`).join("");
+  return `
+  <div class="casebar">
+    <div class="nav">
+      <button class="btn icon" data-act="prev" aria-label="Previous case">${icon("i-left")}</button>
+      <span class="pos mono" aria-live="polite">${state.idx + 1} / ${n}</span>
+      <button class="btn icon" data-act="next" aria-label="Next case">${icon("i-right")}</button>
+    </div>
+    <div class="meta">
+      <span class="badge mono">ViTAR-16K #${c.ds_index}</span>
+      <span class="badge mono">${esc(D.model)}</span>
+      <button class="btn" data-act="evidence" aria-haspopup="dialog">${icon("i-file", "sm")}Prompt &amp; raw outputs</button>
+    </div>
+  </div>
+  <section class="card qcard">
+    <div class="eyebrow">Question</div>
+    <h1 class="qtitle">${esc(c.question)}</h1>
+    <div class="opts">${opts}</div>
+    <div class="why">${c.why ? esc(c.why) : `Label from the dataset: ${c.gt} (${esc(c.gt_text)}). Evidence box, normalized x0, y0, x1, y1: <span class="mono">${c.box_norm.map(f2).join(", ")}</span>.`}</div>
+  </section>
+  ${verdict(c)}
+  <div class="views">${VIEW_ORDER.map(k => viewCard(c, k)).join("")}</div>
+  <div class="legend" aria-label="Legend">
+    <span><i style="border:2px dashed #fab219"></i>dataset evidence box</span>
+    <span><i style="border:2px solid #c3c2b7"></i>random control box</span>
+    <span><i style="background:#3987e5"></i>p(option)</span>
+    <span><i style="background:#8d8c84"></i>p(cannot be determined)</span>
+    <span class="muted keys">Keys: <span class="kbd">←</span> <span class="kbd">→</span> cases · <span class="kbd">Ctrl K</span> find</span>
+  </div>`;
+}
+
+/* ---------------- evidence dialog ---------------- */
+function openEvidence() {
+  const c = D.cases[state.idx];
+  const prompt = (c.views.full.first_answer || {}).prompt;
+  const instr = `Answer the multiple-choice question with only the letter of the correct option. Do not explain.\n\nQ: ${c.question} ${c.options.map(([L, t]) => `${L}) ${t}`).join(" ")}\nA:`;
+  const fa = Object.values(c.views).flatMap(v => [v.first_answer, v.first_answer_ab].filter(Boolean));
+  const raw = Object.fromEntries(Object.entries(c.views).map(([k, v]) => [k, { probs: v.probs, with_abstain_option: v.ab_probs }]));
+  $("#evTitle").textContent = `Case #${c.ds_index} · prompt and raw outputs`;
+  $("#evBody").innerHTML = `
+    <p class="muted" style="margin-top:0">Model <span class="mono">${esc(D.model)}</span> · dataset ${esc(D.dataset)}. Option letters are scored in one forward pass; “p” is the top option's probability renormalized over the option letters.</p>
+    <div class="prehead"><h3>${prompt ? "Exact prompt (chat template applied)" : "Instruction text · first-answer log not generated yet"}</h3>
+      <button class="btn" data-copy="prompt">${icon("i-copy", "sm")}Copy</button></div>
+    <pre id="pre-prompt">${esc(prompt || instr)}</pre>
+    <div class="prehead"><h3>First attempts · ${fa.length}</h3></div>
+    <pre>${fa.length ? fa.map(r => esc(JSON.stringify({ condition: r.condition, timestamp_utc: r.timestamp_utc, raw_output: r.raw_output, parsed: r.parsed_letter }))).join("\n") : "None logged yet. The patched script writes them to results/first_answers.jsonl."}</pre>
+    <div class="prehead"><h3>Option probabilities per view</h3><button class="btn" data-copy="raw">${icon("i-copy", "sm")}Copy JSON</button></div>
+    <pre id="pre-raw">${esc(JSON.stringify(raw, null, 1))}</pre>`;
+  $("#evDlg").showModal();
+}
+$("#evClose").onclick = () => $("#evDlg").close();
+$("#evDlg").addEventListener("click", e => {
+  if (e.target === $("#evDlg")) $("#evDlg").close();          // click on the backdrop
+  const b = e.target.closest("[data-copy]");
+  if (b) copy($(`#pre-${b.dataset.copy}`).textContent, b.dataset.copy === "raw" ? "JSON copied" : "Prompt copied");
+});
+async function copy(text, msg) {
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch { const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); toast(msg); }
+}
+let toastT;
+function toast(msg) { $("#toastMsg").textContent = msg; $("#toast").classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => $("#toast").classList.remove("on"), 1800); }
+
+/* ---------------- scoreboard ---------------- */
+function scatter() {
+  const pts = D.cases.map((c, i) => ({ c, i })).filter(p => p.c.views.evid && p.c.views.rand)
+    .map(p => ({ ...p, x: p.c.views.rand.d_logp_answer, y: p.c.views.evid.d_logp_answer }));
+  const W = 520, H = 420, P = { l: 56, r: 18, t: 18, b: 52 };
+  const all = pts.flatMap(p => [p.x, p.y]);
+  const lo = Math.floor(Math.min(-2, ...all) * 2) / 2 - 0.1, hi = Math.max(0.5, ...all) + 0.1;
+  const sx = v => P.l + (v - lo) / (hi - lo) * (W - P.l - P.r), sy = v => H - P.b - (v - lo) / (hi - lo) * (H - P.t - P.b);
+  const ticks = []; for (let t = Math.ceil(lo * 2) / 2; t <= hi; t += 0.5) ticks.push(+t.toFixed(1));
+  let g = `<polygon points="${sx(lo)},${sy(lo)} ${sx(hi)},${sy(hi)} ${sx(hi)},${sy(lo)}" fill="rgba(57,135,229,.06)"/>`;
+  g += ticks.map(t => `<line x1="${sx(t)}" x2="${sx(t)}" y1="${P.t}" y2="${H - P.b}" stroke="#2c2c2a"/><line y1="${sy(t)}" y2="${sy(t)}" x1="${P.l}" x2="${W - P.r}" stroke="#2c2c2a"/>
+    <text x="${sx(t)}" y="${H - P.b + 18}" fill="#9a998f" font-size="11" text-anchor="middle" font-family="ui-monospace,monospace">${t}</text>
+    <text x="${P.l - 8}" y="${sy(t) + 4}" fill="#9a998f" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">${t}</text>`).join("");
+  g += `<line x1="${sx(lo)}" y1="${sy(lo)}" x2="${sx(hi)}" y2="${sy(hi)}" stroke="#6f6e67" stroke-dasharray="4 4"/>`;
+  g += `<text x="${sx(hi) - 8}" y="${sy(lo) - 10}" fill="#c3c2b7" font-size="12" text-anchor="end">Below the line: masking the evidence hurt more</text>`;
+  g += pts.map(p => `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="6" fill="#3987e5" stroke="#1a1a19" stroke-width="2" tabindex="0" role="button" data-i="${p.i}"
+      aria-label="Case ${p.c.ds_index}: evidence ${f2(p.y)}, random ${f2(p.x)}. Open case."/>`).join("");
+  g += `<text x="${(W + P.l) / 2}" y="${H - 12}" fill="#c3c2b7" font-size="12" text-anchor="middle">Δ log p(answer) · random region masked</text>
+    <text transform="translate(16 ${(H - P.b + P.t) / 2}) rotate(-90)" fill="#c3c2b7" font-size="12" text-anchor="middle">Δ log p(answer) · evidence masked</text>`;
+  return `<svg id="sc" viewBox="0 0 ${W} ${H}" width="100%" role="group" aria-label="Scatter: change in log-probability, evidence masked versus random region masked, one dot per case">${g}</svg>`;
+}
+function scoreView() {
+  const b = S.before, a = S.after_crossfit, acc = b.no_abstain_option.accuracy;
+  const vs = ["full", "out", "rand", "evid"].filter(v => acc[v] !== undefined);
+  const cell = o => o ? `${pct(o.mean)}<span class="ci">${pct(o["p2.5"])}–${pct(o["p97.5"])}</span>` : "–";
+  const tile = (n, l, d) => `<div class="card tile"><div class="eyebrow">${l}</div><div class="n">${n}</div><div class="d">${d}</div></div>`;
+  const W = S.wrong_answers_with_evidence_masked;
+  return `
+  <div class="tiles">
+    ${vs.map(v => tile(pct(acc[v]), "Accuracy", VIEW_NAME[v])).join("")}
+    ${tile(`${W.n}/${S.n_examples}`, "Wrong when masked", "switch to a wrong option once the evidence is gray")}
+    ${tile(f2(S.threshold_free_auroc.neg_conf_evid_vs_rand), "AUROC", "low confidence: evidence-masked vs random-masked")}
+  </div>
+  <div class="grid2">
+    <section class="card"><div class="card-h"><h2>How often the model abstains</h2><span class="badge">held-out · ${a.n_splits} splits</span></div>
+      <div class="card-b">
+        <div class="tablewrap"><table>
+          <thead><tr><th scope="col"><span class="sr-only">Condition</span></th>${vs.map(v => `<th scope="col">${VIEW_NAME[v]}<small>${v === "evid" ? "want 100%" : "want 0%"}</small></th>`).join("")}</tr></thead>
+          <tbody>
+            <tr><td>Before · plain question</td>${vs.map(v => `<td>${pct(b.no_abstain_option.abstain_rate[v])}</td>`).join("")}</tr>
+            <tr><td>Before · “Cannot be determined” offered</td>${vs.map(v => `<td>${pct(b.abstain_option_offered_no_edit.abstain_rate[v])}</td>`).join("")}</tr>
+            <tr class="after"><td>After · confidence threshold</td>${vs.map(v => `<td>${cell(a.conf_gate_abstain_rate[v])}</td>`).join("")}</tr>
+            <tr class="after"><td>After · abstain-logit edit</td>${vs.map(v => `<td>${cell(a.logit_gate_abstain_rate && a.logit_gate_abstain_rate[v])}</td>`).join("")}</tr>
+          </tbody></table></div>
+        <p class="note">After rows: each half of the cases gets a threshold fit on the other half (Youden's J: abstain on evidence-masked, answer on full and random-masked), repeated over ${a.n_splits} random splits. Mean, with the 2.5th–97.5th percentile below.</p>
+        <div class="callout"><b>Grounding check</b> (no fitted parameters): ${pct(S.grounding_check.frac_grounded)} of answers lose more log-probability when the evidence is masked than when an equal-size random region is masked. Mean ${f2(S.grounding_check.mean_d_evid)} vs ${f2(S.grounding_check.mean_d_rand)}, Wilcoxon p = ${S.grounding_check.wilcoxon_p_d_evid_vs_d_rand.toFixed(4)}.</div>
+        <div class="callout">${S.self_box ? `<b>Label-free mode</b> (Qwen proposes its own box): mean IoU with the dataset box ${f2(S.self_box.mean_iou_with_dataset_box)}; grounded ${pct(S.self_box.frac_grounded_label_free)}; agrees with the dataset-box verdict ${pct(S.self_box.agreement_with_dataset_box_verdict)}.` : `<b>Label-free mode</b> (Qwen proposes its own evidence box) is coded but not in this run.`}</div>
+      </div></section>
+    <section class="card"><div class="card-h"><h2>Did the answer depend on the evidence?</h2><span class="muted" style="font-size:12px">one dot per case · click to open</span></div>
+      <div class="card-b">${scatter()}</div></section>
+  </div>
+  <p class="foot">Sample: ${S.n_examples} cases, from ${S.n_examples_in_csv} that passed a screen of 1000 shuffled ViTAR-16K classification questions (kept only if Qwen answers the full image correctly with p ≥ 0.5 and the image at least doubles p(correct) over the question alone). Spine “Is there stenosis at L4-L5?” items are excluded: they are yes/no questions with an escape option. The ground truth for the check is physical: in the evidence-masked view the labelled region is painted gray, so abstaining is correct whatever the diagnosis.</p>`;
+}
+
+/* ---------------- gallery ---------------- */
+const FILTERS = [["all", "All"], ["wrong", "Wrong when masked"], ["caught", "Caught"], ["missed", "Missed"], ["fa", "False alarm"]];
+function galleryMatches(c, gate) {
+  const st = caseStatus(c, gate), f = state.filter, q = state.q.trim().toLowerCase();
+  const ok = f === "all" || (f === "wrong" && !c.views.evid.correct) || (f === "caught" && st.key.startsWith("caught")) ||
+    (f === "missed" && st.key === "missed") || (f === "fa" && st.fa.length > 0);
+  return ok && matchesText(c, q);
+}
+// Case number, question, or any answer option (e.g. "glioma", "implant").
+const matchesText = (c, q) => !q || String(c.ds_index).includes(q) || c.question.toLowerCase().includes(q) ||
+  c.options.some(([, t]) => t.toLowerCase().includes(q));
+function galleryView() {
+  const gate = state.gate === "off" ? "conf" : state.gate;
+  const items = D.cases.map((c, i) => [c, i]).filter(([c]) => galleryMatches(c, gate));
+  const label = { caught: "Caught", caught_fa: "Caught + false alarm", missed: "Missed" };
+  return `
+  <div class="toolbar">
+    <div class="seg" role="radiogroup" aria-label="Filter cases" id="gf">${FILTERS.map(([k, l]) => `<button role="radio" aria-checked="${state.filter === k}" tabindex="${state.filter === k ? 0 : -1}" data-f="${k}">${l}</button>`).join("")}</div>
+    <label class="field">${icon("i-search", "sm")}<span class="sr-only">Filter by text</span><input id="gq" type="search" placeholder="Filter by number, question or option" value="${esc(state.q)}"></label>
+  </div>
+  <p class="count" aria-live="polite">${items.length} of ${D.cases.length} cases · verdicts use the ${gate === "conf" ? "confidence threshold" : "abstain-logit edit"} gate${state.gate === "off" ? " (pick a gate above to switch)" : ""}</p>
+  <div class="gallery">${items.length ? items.map(([c, i]) => {
+    const st = caseStatus(c, gate), ev = c.views.evid;
+    const [cls, ic] = st.key === "missed" ? ["crit", "i-x"] : st.key === "caught" ? ["good", "i-check"] : ["warn", "i-alert"];
+    return `<button class="gcard" data-i="${i}" aria-label="Open case ${c.ds_index}: ${esc(c.question)}">
+      ${frame(c, "evid", ev.img, 4 / 3)}
+      <span class="id">#${c.ds_index}</span><span class="t">${esc(c.question)}</span>
+      <span class="row">${ev.correct ? badge("ans_noev") : badge("wrong_noev")}<span class="badge ${cls}">${icon(ic)}${label[st.key]}</span></span>
+    </button>`;
+  }).join("") : `<div class="emptystate">No cases match. <button class="btn" data-act="clear" style="margin-left:8px">Clear filters</button></div>`}</div>`;
+}
+
+/* ---------------- command menu ---------------- */
+let cmdSel = 0, cmdItems = [];
+function cmdRender() {
+  const q = $("#cmdInput").value.trim().toLowerCase();
+  cmdItems = D.cases.map((c, i) => ({ c, i })).filter(({ c }) => matchesText(c, q));
+  cmdSel = Math.min(cmdSel, Math.max(0, cmdItems.length - 1));
+  $("#cmdList").innerHTML = cmdItems.length ? cmdItems.map(({ c, i }, j) =>
+    `<li role="option" id="opt-${j}" aria-selected="${j === cmdSel}" data-i="${i}"><span class="id">#${c.ds_index}</span><span class="q">${esc(c.question)}</span>${c.views.evid.correct ? badge("ans_noev") : badge("wrong_noev")}</li>`).join("")
+    : `<li class="cmd-empty" role="option" aria-disabled="true" aria-selected="false">No case matches “${esc(q)}”.</li>`;
+  if (cmdItems.length) $("#cmdInput").setAttribute("aria-activedescendant", `opt-${cmdSel}`); else $("#cmdInput").removeAttribute("aria-activedescendant");
+  const sel = $("#cmdList [aria-selected=true]"); if (sel) sel.scrollIntoView({ block: "nearest" });
+}
+function openCmd() { $("#cmdInput").value = ""; cmdSel = 0; cmdRender(); $("#cmd").showModal(); $("#cmdInput").focus(); }
+$("#openCmd").onclick = openCmd;
+$("#cmdInput").addEventListener("input", () => { cmdSel = 0; cmdRender(); });
+$("#cmdInput").addEventListener("keydown", e => {
+  const n = cmdItems.length;
+  if (e.key === "ArrowDown" && n) { e.preventDefault(); cmdSel = (cmdSel + 1) % n; cmdRender(); }
+  if (e.key === "ArrowUp" && n) { e.preventDefault(); cmdSel = (cmdSel - 1 + n) % n; cmdRender(); }
+  if (e.key === "Enter" && cmdItems[cmdSel]) { e.preventDefault(); $("#cmd").close(); go("case", cmdItems[cmdSel].i); }
+});
+$("#cmdList").addEventListener("click", e => { const li = e.target.closest("[data-i]"); if (li) { $("#cmd").close(); go("case", +li.dataset.i); } });
+$("#cmd").addEventListener("click", e => { if (e.target === $("#cmd")) $("#cmd").close(); });
+
+/* ---------------- render + events ---------------- */
+function render(animate = false) {
+  hideTip();
+  shell();
+  const m = $("#main");
+  m.setAttribute("aria-labelledby", `tab-${state.tab}`);
+  m.innerHTML = state.tab === "case" ? caseView() : state.tab === "score" ? scoreView() : galleryView();
+  if (animate) { m.classList.remove("view-enter"); void m.offsetWidth; m.classList.add("view-enter"); }
+  document.title = state.tab === "case" ? `#${D.cases[state.idx].ds_index} · Imaced` : `${TABS.find(t => t[0] === state.tab)[1]} · Imaced`;
+}
+const step = d => go("case", (state.idx + d + D.cases.length) % D.cases.length);
+$("#main").addEventListener("click", e => {
+  const a = e.target.closest("[data-act]"), g = e.target.closest(".gcard"), f = e.target.closest("[data-f]"), dot = e.target.closest("#sc circle");
+  if (a) {
+    const k = a.dataset.act;
+    if (k === "prev") step(-1); else if (k === "next") step(1); else if (k === "evidence") openEvidence();
+    else if (k === "clear") { state.filter = "all"; state.q = ""; render(); }
+  }
+  if (g) go("case", +g.dataset.i);
+  if (f) { state.filter = f.dataset.f; render(); $(`[data-f="${state.filter}"]`).focus(); }
+  if (dot) { hideTip(); go("case", +dot.dataset.i); }
+});
+$("#main").addEventListener("input", e => {
+  if (e.target.id !== "gq") return;
+  state.q = e.target.value; const pos = e.target.selectionStart;
+  render(); const el = $("#gq"); el.focus(); el.setSelectionRange(pos, pos);
+});
+$("#main").addEventListener("keydown", e => {
+  const dot = e.target.closest && e.target.closest("#sc circle");
+  if (dot && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); hideTip(); go("case", +dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest("#gf") && ["ArrowLeft", "ArrowRight"].includes(e.key)) {
+    const i = FILTERS.findIndex(x => x[0] === state.filter), n = FILTERS.length;
+    state.filter = FILTERS[(i + (e.key === "ArrowRight" ? 1 : -1) + n) % n][0];
+    e.preventDefault(); render(); $(`[data-f="${state.filter}"]`).focus();
+  }
+});
+const tip = $("#tip");
+function showTip(dot, x, y) {
+  const c = D.cases[+dot.dataset.i];
+  tip.innerHTML = `<b class="mono">#${c.ds_index}</b> ${esc(c.question)}<br><span class="muted">Δ evidence</span> <span class="mono">${f2(c.views.evid.d_logp_answer)}</span> · <span class="muted">Δ random</span> <span class="mono">${f2(c.views.rand.d_logp_answer)}</span><br><span class="muted">Answer with evidence masked:</span> ${esc(c.views.evid.pred_text)} (${c.views.evid.correct ? "same as label" : "wrong"})`;
+  tip.classList.add("on");
+  const r = tip.getBoundingClientRect();
+  tip.style.transform = `translate(${Math.min(x + 14, innerWidth - r.width - 8)}px, ${Math.min(y + 14, innerHeight - r.height - 8)}px)`;
+}
+function hideTip() { tip.classList.remove("on"); }
+$("#main").addEventListener("mousemove", e => { const d = e.target.closest("#sc circle"); d ? showTip(d, e.clientX, e.clientY) : hideTip(); });
+$("#main").addEventListener("focusin", e => { const d = e.target.closest("#sc circle"); if (d) { const r = d.getBoundingClientRect(); showTip(d, r.right, r.bottom); } });
+$("#main").addEventListener("focusout", hideTip);
+document.addEventListener("keydown", e => {
+  if ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $("#cmd").open ? $("#cmd").close() : openCmd(); return; }
+  if (document.querySelector("dialog[open]")) return;
+  const typing = /INPUT|TEXTAREA|SELECT/.test(e.target.tagName);
+  if (e.key === "/" && !typing) { e.preventDefault(); openCmd(); return; }
+  if (state.tab !== "case" || typing || (e.target.closest && e.target.closest("[role=tablist],[role=radiogroup]"))) return;
+  if (e.key === "ArrowRight") step(1);
+  if (e.key === "ArrowLeft") step(-1);
+});
+
+if (!D) {
+  $("#main").innerHTML = `<div class="emptystate">No data found. Run <span class="mono">python imaced_verify.py results site</span> to create <span class="mono">site/cases.js</span>.</div>`;
+} else {
+  state.idx = Math.max(0, D.cases.findIndex(c => c.ds_index === 12834));
+  readHash();
+  render();
+}
+</script>
+</body>
+</html>
