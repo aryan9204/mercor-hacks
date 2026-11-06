@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Reading-room palette. One data hue, three reserved status colours (always paired with icon + label). */
+:root, .dark {
+  --radius: 0.75rem;
+  --background: #0b0b0a;
+  --foreground: #f0efec;
+  --card: #151514;
+  --card-foreground: #f0efec;
+  --popover: #1a1a19;
+  --popover-foreground: #f0efec;
+  --primary: #f0efec;
+  --primary-foreground: #0b0b0a;
+  --secondary: #222220;
+  --secondary-foreground: #f0efec;
+  --muted: #1c1c1b;
+  --muted-foreground: #9a998f;
+  --accent: #262624;
+  --accent-foreground: #f0efec;
+  --destructive: #e5484d;
+  --border: #2a2a28;
+  --input: #34342f;
+  --ring: #7fb2f0;
+  --data: #3987e5;
+  --good: #0ca30c;
+  --warn: #fab219;
+  --crit: #e5484d;
+  --evidence: #fab219;
+}
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-data: var(--data);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-crit: var(--crit);
+  --color-evidence: var(--evidence);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/60; }
+  body { @apply bg-background text-foreground antialiased; font-feature-settings: "ss01", "cv11"; }
+  .tnum { font-variant-numeric: tabular-nums; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
