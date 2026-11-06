@@ -1,0 +1,86 @@
+{
+  "all_good": {
+    "n": 36,
+    "accuracy": {
+      "full": 1.0,
+      "evid": 0.7777777777777778,
+      "rand": 0.9444444444444444
+    },
+    "mean_p_correct": {
+      "full": 0.6078752513986145,
+      "evid": 0.5032774119561367,
+      "rand": 0.5835459512480162
+    },
+    "mean_top_option_conf": {
+      "full": 0.6078752513986145,
+      "evid": 0.5558550578739664,
+      "rand": 0.591696883335858
+    },
+    "mean_delta_logp_correct": {
+      "evid": -0.2537760692131188,
+      "rand": -0.052383561411665565
+    },
+    "frac_evidence_hurts_more_than_random": 0.5,
+    "wilcoxon_p_evid_vs_rand": 0.1762826904305257,
+    "auroc_conf_masked_vs_random": 0.5354938271604939,
+    "auroc_conf_masked_vs_full": 0.6010802469135803,
+    "flipped_to_wrong_answer": 8,
+    "conf_on_wrong_answer_when_flipped": [
+      0.474,
+      0.711,
+      0.497,
+      0.577,
+      0.444,
+      0.306,
+      0.444,
+      0.377
+    ],
+    "abstain_option_picked": {
+      "full": 0.5833333333333334,
+      "evid": 0.5833333333333334,
+      "rand": 0.6111111111111112
+    }
+  },
+  "core_without_spine_yes_no": {
+    "n": 15,
+    "accuracy": {
+      "full": 1.0,
+      "evid": 0.4666666666666667,
+      "rand": 0.8666666666666667
+    },
+    "mean_p_correct": {
+      "full": 0.6589937836648481,
+      "evid": 0.3802624881534803,
+      "rand": 0.6074405325099665
+    },
+    "mean_top_option_conf": {
+      "full": 0.6589937836648481,
+      "evid": 0.5064488383562715,
+      "rand": 0.6270027695207869
+    },
+    "mean_delta_logp_correct": {
+      "evid": -0.658651536454757,
+      "rand": -0.11258741493026418
+    },
+    "frac_evidence_hurts_more_than_random": 0.8666666666666667,
+    "wilcoxon_p_evid_vs_rand": 0.00115966796875,
+    "auroc_conf_masked_vs_random": 0.7333333333333333,
+    "auroc_conf_masked_vs_full": 0.8222222222222222,
+    "flipped_to_wrong_answer": 8,
+    "conf_on_wrong_answer_when_flipped": [
+      0.474,
+      0.711,
+      0.497,
+      0.577,
+      0.444,
+      0.306,
+      0.444,
+      0.377
+    ],
+    "abstain_option_picked": {
+      "full": 0.4,
+      "evid": 0.7333333333333333,
+      "rand": 0.4
+    }
+  }
+}

@@ -85,7 +85,9 @@ def parse_options(question):
 def question_type(question, options):
     q = question.lower()
     texts = [t.lower() for _, t in options]
-    if texts and all(t.startswith(("yes", "no")) for t in texts):
+    # Yes/no questions, including ones with an extra escape option such as
+    # "A) Yes (L4-L5 stenosis) B) No (L4-L5 normal) C) Image does not cover L4 segment".
+    if len(texts) >= 2 and texts[0].startswith(("yes", "no")) and texts[1].startswith(("yes", "no")):
         return "yes_no"
     if any("[" in t for t in texts) or "bounding box" in q:
         return "localization"

@@ -1,0 +1,53 @@
+{
+  "n_good": 36,
+  "auroc_conf_masked_vs_random": 0.5354938271604939,
+  "auroc_conf_masked_vs_full": 0.6010802469135803,
+  "best_tau_youden_vs_random": 0.45,
+  "at_best_tau": {
+    "tau": 0.45,
+    "abstain_rate_evidence_masked": 0.16666666666666666,
+    "answer_rate_full": 1.0,
+    "answer_rate_random_masked": 0.9722222222222222,
+    "youden_vs_random": 0.13888888888888884,
+    "youden_vs_full": 0.16666666666666674
+  },
+  "highest_tau_keeping_95pct_random_answers": 0.45,
+  "abstain_option_chosen": {
+    "full": 0.5833333333333334,
+    "evidence_masked": 0.5833333333333334,
+    "random_masked": 0.6111111111111112
+  },
+  "still_answers_when_masked": 0.4166666666666667,
+  "accuracy": {
+    "full": 1.0,
+    "evidence_masked": 0.7777777777777778,
+    "random_masked": 0.9444444444444444
+  },
+  "mean_conf": {
+    "full": 0.6078752513986145,
+    "evid": 0.5558550578739664,
+    "rand": 0.591696883335858
+  },
+  "mean_logp_gt": {
+    "full": -0.5104940108334025,
+    "evid": -0.7642700800465213,
+    "rand": -0.5628775722450681,
+    "qonly": -1.5651944643921323
+  },
+  "filters": {
+    "CONF_MIN": 0.5,
+    "IMAGE_GAIN_MIN": 0.6931471805599453,
+    "MAX_BOX_FRAC": 0.5,
+    "N_SCREEN": 1000,
+    "SEED": 0
+  },
+  "screen_counts": {
+    "reject": {
+      "wrong": 552,
+      "not_image_dependent": 211,
+      "low_conf": 199,
+      "kept": 36,
+      "box": 2
+    }
+  }
+}
