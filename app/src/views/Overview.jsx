@@ -18,10 +18,10 @@ const QUESTION = DEMO.question.split(/\s+A\)/)[0];
 const VIEWS = [
   { id: "full", label: "Full image", short: "Full", res: DEMO.results.full, tone: "good", pill: "Correct",
     note: "Nothing hidden. The mass is visible on the left." },
-  { id: "evid", label: "Evidence masked", short: "Evidence", res: DEMO.results.evidence_masked, tone: "crit", pill: "Wrong · evidence hidden",
-    note: "The annotated mass is painted gray. There is nothing left to support an answer." },
   { id: "rand", label: "Irrelevant region masked", short: "Irrelevant", res: DEMO.results.random_masked, tone: "good", pill: "Correct",
     note: "An equal-size region elsewhere is painted gray; the evidence stays visible." },
+  { id: "evid", label: "Evidence masked", short: "Evidence", res: DEMO.results.evidence_masked, tone: "crit", pill: "Wrong · evidence hidden",
+    note: "The annotated mass is painted gray. There is nothing left to support an answer." },
 ];
 
 // Headline numbers: the 8 demo cases, and checker v2 on the held-out test half (full, irrelevant-masked
@@ -51,7 +51,7 @@ export default function Overview({ openCase, go }) {
       <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
         <div className="min-w-0 space-y-6">
           <motion.div {...enter(0)} className="space-y-3">
-            <Eyebrow className="text-evidence">Mercor Hack Day · verification</Eyebrow>
+            <Eyebrow className="text-evidence">Medical VQA · evidence verification</Eyebrow>
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-balance sm:text-4xl xl:text-5xl">
               Is the answer coming from the evidence?
             </h1>
