@@ -1,0 +1,225 @@
+{
+  "ds_index": 11695,
+  "dataset": "jline/ViTAR-16K (train)",
+  "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "question": "What type of tooth is at image coordinates (0.44, 0.17)? A) Caries B) Filling C) Impacted tooth D) Dental implant",
+  "gt": "D",
+  "evidence_box_norm": [
+    0.42,
+    0.1,
+    0.46,
+    0.25
+  ],
+  "evidence_box_px": [
+    215,
+    26,
+    236,
+    64
+  ],
+  "random_box_px": [
+    288,
+    81,
+    309,
+    119
+  ],
+  "evidence_box_frac": 0.006,
+  "fill_rgb": [
+    124,
+    116,
+    104
+  ],
+  "results": {
+    "full": {
+      "pred": "D",
+      "conf": 0.7414,
+      "p_gt": 0.7414,
+      "logp_gt_raw": -0.2998,
+      "entropy": 0.8406,
+      "letter_logprobs_raw": {
+        "A": -2.6748,
+        "B": -2.0498,
+        "C": -2.7998,
+        "D": -0.2998
+      },
+      "letter_logprobs_renorm": {
+        "A": -2.6743,
+        "B": -2.0493,
+        "C": -2.7993,
+        "D": -0.2993
+      },
+      "letter_probs_renorm": {
+        "A": 0.069,
+        "B": 0.1288,
+        "C": 0.0609,
+        "D": 0.7413
+      }
+    },
+    "question_only": {
+      "pred": "B",
+      "conf": 0.5463,
+      "p_gt": 0.1381,
+      "logp_gt_raw": -1.9811,
+      "entropy": 1.1839,
+      "letter_logprobs_raw": {
+        "A": -1.7311,
+        "B": -0.6061,
+        "C": -1.9811,
+        "D": -1.9811
+      },
+      "letter_logprobs_renorm": {
+        "A": -1.7295,
+        "B": -0.6045,
+        "C": -1.9795,
+        "D": -1.9795
+      },
+      "letter_probs_renorm": {
+        "A": 0.1774,
+        "B": 0.5463,
+        "C": 0.1381,
+        "D": 0.1381
+      }
+    },
+    "evidence_masked": {
+      "pred": "B",
+      "conf": 0.4743,
+      "p_gt": 0.2539,
+      "logp_gt_raw": -1.3717,
+      "entropy": 1.2443,
+      "letter_logprobs_raw": {
+        "A": -1.9967,
+        "B": -0.7467,
+        "C": -1.9967,
+        "D": -1.3717
+      },
+      "letter_logprobs_renorm": {
+        "A": -1.9959,
+        "B": -0.7459,
+        "C": -1.9959,
+        "D": -1.3709
+      },
+      "letter_probs_renorm": {
+        "A": 0.1359,
+        "B": 0.4743,
+        "C": 0.1359,
+        "D": 0.2539
+      }
+    },
+    "random_masked": {
+      "pred": "D",
+      "conf": 0.6388,
+      "p_gt": 0.6388,
+      "logp_gt_raw": -0.4487,
+      "entropy": 1.0059,
+      "letter_logprobs_raw": {
+        "A": -2.4487,
+        "B": -1.5737,
+        "C": -2.6987,
+        "D": -0.4487
+      },
+      "letter_logprobs_renorm": {
+        "A": -2.4481,
+        "B": -1.5731,
+        "C": -2.6981,
+        "D": -0.4481
+      },
+      "letter_probs_renorm": {
+        "A": 0.0865,
+        "B": 0.2074,
+        "C": 0.0673,
+        "D": 0.6388
+      }
+    },
+    "full_with_abstain_option": {
+      "pred": "D",
+      "conf": 0.565,
+      "p_gt": 0.565,
+      "logp_gt_raw": -0.5716,
+      "entropy": 1.2284,
+      "letter_logprobs_raw": {
+        "A": -2.9466,
+        "B": -2.3216,
+        "C": -2.5716,
+        "D": -0.5716,
+        "E": -1.5716
+      },
+      "letter_logprobs_renorm": {
+        "A": -2.946,
+        "B": -2.321,
+        "C": -2.571,
+        "D": -0.571,
+        "E": -1.571
+      },
+      "letter_probs_renorm": {
+        "A": 0.0525,
+        "B": 0.0982,
+        "C": 0.0765,
+        "D": 0.565,
+        "E": 0.2078
+      },
+      "abstain_letter": "E",
+      "p_abstain": 0.2078
+    },
+    "evidence_masked_with_abstain_option": {
+      "pred": "E",
+      "conf": 0.1675,
+      "p_gt": 0.1675,
+      "logp_gt_raw": -1.7872,
+      "entropy": 1.3266,
+      "letter_logprobs_raw": {
+        "A": -2.5372,
+        "B": -1.7872,
+        "C": -2.6622,
+        "D": -1.7872,
+        "E": -0.6622
+      },
+      "letter_logprobs_renorm": {
+        "A": -2.5367,
+        "B": -1.7867,
+        "C": -2.6617,
+        "D": -1.7867,
+        "E": -0.6617
+      },
+      "letter_probs_renorm": {
+        "A": 0.0791,
+        "B": 0.1675,
+        "C": 0.0698,
+        "D": 0.1675,
+        "E": 0.516
+      },
+      "abstain_letter": "E",
+      "p_abstain": 0.516
+    },
+    "random_masked_with_abstain_option": {
+      "pred": "D",
+      "conf": 0.4926,
+      "p_gt": 0.4926,
+      "logp_gt_raw": -0.7087,
+      "entropy": 1.3427,
+      "letter_logprobs_raw": {
+        "A": -2.7087,
+        "B": -1.8337,
+        "C": -2.5837,
+        "D": -0.7087,
+        "E": -1.5837
+      },
+      "letter_logprobs_renorm": {
+        "A": -2.7081,
+        "B": -1.8331,
+        "C": -2.5831,
+        "D": -0.7081,
+        "E": -1.5831
+      },
+      "letter_probs_renorm": {
+        "A": 0.0667,
+        "B": 0.1599,
+        "C": 0.0755,
+        "D": 0.4926,
+        "E": 0.2053
+      },
+      "abstain_letter": "E",
+      "p_abstain": 0.2053
+    }
+  },
+  "notes": "letter_logprobs_raw: model's next-token log-prob for each option letter at the answer position (full vocabulary). *_renorm: renormalized over the option letters. conf = top option probability.",
+  "source": "results/vitar_good_examples.csv"
+}

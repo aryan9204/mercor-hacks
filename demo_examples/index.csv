@@ -1,0 +1,9 @@
+folder,question,gt,box_frac,full_pred,full_conf,full_p_gt,full_logp_gt_raw,evid_pred,evid_conf,evid_p_gt,evid_logp_gt_raw,rand_pred,rand_conf,rand_p_gt,rand_logp_gt_raw,evid_drop,rand_drop
+vitar_11695,"What type of tooth is at image coordinates (0.44, 0.17)? A) Caries B) Filling C) Impacted ",D,0.006,D,0.7414,0.7414,-0.2998,B,0.4743,0.2539,-1.3717,D,0.6388,0.6388,-0.4487,0.4875,0.1026
+vitar_12834,Which half of the image (left or right) contains the breast mass? A) Left half B) Right ha,A,0.0868,A,0.9413,0.9413,-0.0608,B,0.7111,0.1798,-1.7168,A,0.9019,0.9019,-0.1036,0.7615,0.0394
+vitar_10282,"What type of tooth is at image coordinates (0.46, 0.17)? A) Caries B) Filling C) Impacted ",D,0.0045,D,0.5172,0.5172,-0.6601,B,0.4971,0.2348,-1.4498,D,0.4745,0.4745,-0.7461,0.2824,0.0427
+vitar_13907,What is the type of tumor in the brain image? A) Glioma B) Meningioma C) No tumor,B,0.0648,B,0.6098,0.6098,-0.4968,A,0.4442,0.346,-1.0631,B,0.5796,0.5796,-0.5474,0.2638,0.0302
+vitar_5088,"What type of tooth is at image coordinates (0.52, 0.47)? A) Caries B) Filling C) Impacted ",D,0.003,D,0.6387,0.6387,-0.4489,D,0.3955,0.3955,-0.9284,D,0.7182,0.7182,-0.3316,0.2432,-0.0795
+vitar_13407,"What is the tumor type at image coordinates (0.5, 0.6)? A) Glioma B) Meningioma C) Pituita",C,0.0195,C,0.5357,0.5357,-0.6249,D,0.306,0.2701,-1.3103,C,0.3881,0.3881,-0.9474,0.2656,0.1476
+vitar_7414,What is the type of tumor in the brain image? A) Glioma B) Meningioma C) No tumor,B,0.0624,B,0.6075,0.6075,-0.5001,A,0.4444,0.1635,-1.8128,B,0.5283,0.5283,-0.6398,0.444,0.0792
+vitar_14748,"What type of tooth is at image coordinates (0.53, 0.17)? A) Caries B) Filling C) Impacted ",D,0.0045,D,0.7528,0.7528,-0.2845,B,0.3775,0.3775,-0.9751,D,0.791,0.791,-0.2349,0.3753,-0.0382

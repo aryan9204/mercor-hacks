@@ -1,0 +1,204 @@
+{
+  "ds_index": 7414,
+  "dataset": "jline/ViTAR-16K (train)",
+  "model": "Qwen/Qwen2.5-VL-7B-Instruct",
+  "question": "What is the type of tumor in the brain image? A) Glioma B) Meningioma C) No tumor",
+  "gt": "B",
+  "evidence_box_norm": [
+    0.42,
+    0.18,
+    0.66,
+    0.44
+  ],
+  "evidence_box_px": [
+    94,
+    40,
+    148,
+    99
+  ],
+  "random_box_px": [
+    139,
+    124,
+    193,
+    183
+  ],
+  "evidence_box_frac": 0.0624,
+  "fill_rgb": [
+    124,
+    116,
+    104
+  ],
+  "results": {
+    "full": {
+      "pred": "B",
+      "conf": 0.6075,
+      "p_gt": 0.6075,
+      "logp_gt_raw": -0.5001,
+      "entropy": 0.8984,
+      "letter_logprobs_raw": {
+        "A": -1.2501,
+        "B": -0.5001,
+        "C": -2.2501
+      },
+      "letter_logprobs_renorm": {
+        "A": -1.2484,
+        "B": -0.4984,
+        "C": -2.2484
+      },
+      "letter_probs_renorm": {
+        "A": 0.287,
+        "B": 0.6075,
+        "C": 0.1056
+      }
+    },
+    "question_only": {
+      "pred": "A",
+      "conf": 0.463,
+      "p_gt": 0.2187,
+      "logp_gt_raw": -1.524,
+      "entropy": 1.0533,
+      "letter_logprobs_raw": {
+        "A": -0.774,
+        "B": -1.524,
+        "C": -1.149
+      },
+      "letter_logprobs_renorm": {
+        "A": -0.7699,
+        "B": -1.5199,
+        "C": -1.1449
+      },
+      "letter_probs_renorm": {
+        "A": 0.4631,
+        "B": 0.2187,
+        "C": 0.3183
+      }
+    },
+    "evidence_masked": {
+      "pred": "A",
+      "conf": 0.4444,
+      "p_gt": 0.1635,
+      "logp_gt_raw": -1.8128,
+      "entropy": 1.0236,
+      "letter_logprobs_raw": {
+        "A": -0.8128,
+        "B": -1.8128,
+        "C": -0.9378
+      },
+      "letter_logprobs_renorm": {
+        "A": -0.8111,
+        "B": -1.8111,
+        "C": -0.9361
+      },
+      "letter_probs_renorm": {
+        "A": 0.4444,
+        "B": 0.1635,
+        "C": 0.3922
+      }
+    },
+    "random_masked": {
+      "pred": "B",
+      "conf": 0.5283,
+      "p_gt": 0.5283,
+      "logp_gt_raw": -0.6398,
+      "entropy": 0.9876,
+      "letter_logprobs_raw": {
+        "A": -1.1398,
+        "B": -0.6398,
+        "C": -1.8898
+      },
+      "letter_logprobs_renorm": {
+        "A": -1.1382,
+        "B": -0.6382,
+        "C": -1.8882
+      },
+      "letter_probs_renorm": {
+        "A": 0.3204,
+        "B": 0.5282,
+        "C": 0.1513
+      }
+    },
+    "full_with_abstain_option": {
+      "pred": "D",
+      "conf": 0.2727,
+      "p_gt": 0.2727,
+      "logp_gt_raw": -1.2999,
+      "entropy": 1.1783,
+      "letter_logprobs_raw": {
+        "A": -1.4249,
+        "B": -1.2999,
+        "C": -3.2999,
+        "D": -0.7999
+      },
+      "letter_logprobs_renorm": {
+        "A": -1.4243,
+        "B": -1.2993,
+        "C": -3.2993,
+        "D": -0.7993
+      },
+      "letter_probs_renorm": {
+        "A": 0.2407,
+        "B": 0.2727,
+        "C": 0.0369,
+        "D": 0.4496
+      },
+      "abstain_letter": "D",
+      "p_abstain": 0.4497
+    },
+    "evidence_masked_with_abstain_option": {
+      "pred": "D",
+      "conf": 0.0814,
+      "p_gt": 0.0206,
+      "logp_gt_raw": -3.8842,
+      "entropy": 0.4887,
+      "letter_logprobs_raw": {
+        "A": -2.5092,
+        "B": -3.8842,
+        "C": -3.7592,
+        "D": -0.1342
+      },
+      "letter_logprobs_renorm": {
+        "A": -2.5088,
+        "B": -3.8838,
+        "C": -3.7588,
+        "D": -0.1338
+      },
+      "letter_probs_renorm": {
+        "A": 0.0814,
+        "B": 0.0206,
+        "C": 0.0233,
+        "D": 0.8748
+      },
+      "abstain_letter": "D",
+      "p_abstain": 0.8748
+    },
+    "random_masked_with_abstain_option": {
+      "pred": "D",
+      "conf": 0.2233,
+      "p_gt": 0.1971,
+      "logp_gt_raw": -1.6249,
+      "entropy": 1.1266,
+      "letter_logprobs_raw": {
+        "A": -1.4999,
+        "B": -1.6249,
+        "C": -3.1249,
+        "D": -0.6249
+      },
+      "letter_logprobs_renorm": {
+        "A": -1.4992,
+        "B": -1.6242,
+        "C": -3.1242,
+        "D": -0.6242
+      },
+      "letter_probs_renorm": {
+        "A": 0.2233,
+        "B": 0.1971,
+        "C": 0.044,
+        "D": 0.5357
+      },
+      "abstain_letter": "D",
+      "p_abstain": 0.5357
+    }
+  },
+  "notes": "letter_logprobs_raw: model's next-token log-prob for each option letter at the answer position (full vocabulary). *_renorm: renormalized over the option letters. conf = top option probability.",
+  "source": "results/vitar_good_examples.csv"
+}
