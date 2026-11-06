@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { CaseImage, StatusPill } from "@/components/common";
-import { VIEW_NAME, VIEW_SUB, gateAbstains, optText, f2, signed } from "@/lib/imaced";
+import { VIEW_NAME, VIEW_SUB, gateAbstains, optText, f2 } from "@/lib/imaced";
 import { CatchBadge } from "./CatchBadge";
 
 const ABSTAIN_GRAY = "#8d8c84";
@@ -16,22 +16,12 @@ export function viewOutcome(v, k, gate) {
   return { tone: k === "evid" ? "muted" : "good", label: "Accepted" };
 }
 
-function Row({ k, children }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 text-xs">
-      <span className="min-w-0 text-muted-foreground">{k}</span>
-      <span className="tnum shrink-0 text-right font-mono">{children}</span>
-    </div>
-  );
-}
-
 export function ViewCard({ c, k, gate }) {
   const v = c.views[k];
   const abstains = gateAbstains(v, gate);
   const out = viewOutcome(v, k, gate);
   const caught = gate === "imaced" && k === "evid" && c.caught === true;
   const letters = c.options.map(([L]) => L);
-  const abOpt = v.ab_pred === c.abstain_letter;
 
   return (
     <Card
@@ -83,13 +73,6 @@ export function ViewCard({ c, k, gate }) {
           );
         })}
       </ul>
-
-      <div className="mt-auto space-y-1 border-t pt-2">
-        <Row k="Δ log p(correct) vs full">{k === "full" ? "reference" : signed(v.d_logp_gt)}</Row>
-        <Row k="With “Cannot be determined” offered">
-          {abOpt ? "abstains" : `answers ${v.ab_pred}`} (p {f2(v.p_abstain)})
-        </Row>
-      </div>
     </Card>
   );
 }

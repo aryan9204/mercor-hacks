@@ -463,7 +463,6 @@ function viewCard(c, k) {
     <div>${badge(b)}</div>
     ${bars(shown, c.gt, c.abstain_letter)}
     <div class="vfoot">
-      <div class="kv"><span>Δ log p(answer)</span><span class="mono">${k === "full" ? "reference" : f2(v.d_logp_answer)}</span></div>
       <div class="kv"><span>First generated answer</span><span class="mono" title="${esc(fa ? fa.raw_output : "")}">${fa ? esc(fa.raw_output) : "not logged"}</span></div>
       ${logit ? `<div class="kv"><span>Abstain-logit edit</span><span class="mono">${signed(c.fold_bias)}</span></div>` : ""}
     </div>
@@ -591,7 +590,6 @@ function scoreView() {
           <thead><tr><th scope="col"><span class="sr-only">Condition</span></th>${vs.map(v => `<th scope="col">${VIEW_NAME[v]}<small>${v === "evid" ? "want 100%" : "want 0%"}</small></th>`).join("")}</tr></thead>
           <tbody>
             <tr><td>Before · plain question</td>${vs.map(v => `<td>${pct(b.no_abstain_option.abstain_rate[v])}</td>`).join("")}</tr>
-            <tr><td>Before · “Cannot be determined” offered</td>${vs.map(v => `<td>${pct(b.abstain_option_offered_no_edit.abstain_rate[v])}</td>`).join("")}</tr>
             <tr class="after"><td>After · confidence threshold</td>${vs.map(v => `<td>${cell(a.conf_gate_abstain_rate[v])}</td>`).join("")}</tr>
             <tr class="after"><td>After · abstain-logit edit</td>${vs.map(v => `<td>${cell(a.logit_gate_abstain_rate && a.logit_gate_abstain_rate[v])}</td>`).join("")}</tr>
           </tbody></table></div>
